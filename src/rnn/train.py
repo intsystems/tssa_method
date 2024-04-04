@@ -58,8 +58,8 @@ def EvaluatePredictor(
         # remove batch dimension and put it on kernal
         model_predictions = model_predictions.squeeze(0).to(device='cpu')
 
-        mse_metric = torch.mean((model_predictions - test_data) ** 2).item()
-        mape_metric = torch.mean(torch.abs((model_predictions - test_data) / test_data)).item()
+        mse_metric = torch.mean((model_predictions - test_data) ** 2, dim=0).numpy()
+        mape_metric = torch.mean(torch.abs((model_predictions - test_data) / test_data), dim=0).numpy()
 
     return (mse_metric, mape_metric)
 
