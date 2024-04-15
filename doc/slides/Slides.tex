@@ -214,7 +214,7 @@
 		Цель: 
 		
 		\begin{itemize}
-			\item сравнить качество разложения набора сигналов по \emph{невязке ганкелизации} с похожим методом mSSA. 
+			\item сравнить качество разложения набора сигналов по \emph{невязке ганкелизации} с методом mSSA. 
 			\item сравнить качество построенного прогноза по метрикам \emph{MSE}, \emph{MAPE} с моделями RNN, VAR, mSSA
 		\end{itemize}
 		
@@ -222,7 +222,7 @@
 		
 		 \begin{itemize}
 		 	\item план выработки электричества на день и его цена производства на МВт
-		 	\item погодные условия в TODO 
+		 	\item погодные условия в Берлине (температура, осадки, атмосферное давление)
 		 \end{itemize}
 		
 	\end{frame}
@@ -318,7 +318,7 @@
 			\begin{tabular}{lllll}
 				\cline{1-3}
 				\multicolumn{1}{|c|}{\textit{Метод}}                        & \multicolumn{1}{c|}{tSSA}  & \multicolumn{1}{c|}{mSSA}  &  &  \\ \cline{1-3}
-				\multicolumn{1}{|c|}{\textit{Средняя невязка ганкелизации}} & \multicolumn{1}{c|}{0.802} & \multicolumn{1}{c|}{0.309} &  &  \\ \cline{1-3}
+				\multicolumn{1}{|c|}{\textit{Ср. отн. невязка ганкелизации}} & \multicolumn{1}{c|}{0.802} & \multicolumn{1}{c|}{0.309} &  &  \\ \cline{1-3}
 			\end{tabular}
 		\end{table}
 		
@@ -327,7 +327,7 @@
 			\begin{tabular}{ccccc}
 				\hline
 				\multicolumn{1}{|c|}{\textit{Метод}} & \multicolumn{1}{c|}{tSSA} & \multicolumn{1}{c|}{mSSA} & \multicolumn{1}{c|}{VAR} & \multicolumn{1}{c|}{RNN} \\ \hline
-				\multicolumn{1}{|c|}{\textit{MSE}}   & \multicolumn{1}{c|}{$1.56 \cdot 10^6$}     & \multicolumn{1}{c|}{$1.50 \cdot 10^6$}     & \multicolumn{1}{c|}{$7.81 \cdot 10^6$}    & \multicolumn{1}{c|}{-}    \\ \hline
+				\multicolumn{1}{|c|}{\textit{MSE, $10^6$}}   & \multicolumn{1}{c|}{$1.56$}     & \multicolumn{1}{c|}{$1.50$}     & \multicolumn{1}{c|}{$7.81$}    & \multicolumn{1}{c|}{-}    \\ \hline
 				\multicolumn{1}{|c|}{\textit{MAPE}}  & \multicolumn{1}{c|}{$0.059$}     & \multicolumn{1}{c|}{$0.059$}     & \multicolumn{1}{c|}{$0.13$}    & \multicolumn{1}{c|}{-}    \\ \hline
 			\end{tabular}
 		\end{table}
@@ -337,7 +337,7 @@
 			\begin{tabular}{ccccc}
 				\hline
 				\multicolumn{1}{|c|}{\textit{Метод}} & \multicolumn{1}{c|}{tSSA} & \multicolumn{1}{c|}{mSSA} & \multicolumn{1}{c|}{VAR} & \multicolumn{1}{c|}{RNN} \\ \hline
-				\multicolumn{1}{|c|}{\textit{MSE}}   & \multicolumn{1}{c|}{$1.03 \cdot 10^3$}     & \multicolumn{1}{c|}{$1.03 \cdot 10^3$}     & \multicolumn{1}{c|}{$4.85 \cdot 10^3$}    & \multicolumn{1}{c|}{-}    \\ \hline
+				\multicolumn{1}{|c|}{\textit{MSE, $10^3$}}   & \multicolumn{1}{c|}{$1.03$}     & \multicolumn{1}{c|}{$1.03$}     & \multicolumn{1}{c|}{$4.85$}    & \multicolumn{1}{c|}{-}    \\ \hline
 				\multicolumn{1}{|c|}{\textit{MAPE}}  & \multicolumn{1}{c|}{$0.18$}     & \multicolumn{1}{c|}{$0.17$}     & \multicolumn{1}{c|}{$0.36$}    & \multicolumn{1}{c|}{-}    \\ \hline   
 			\end{tabular}
 		\end{table}
