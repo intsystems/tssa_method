@@ -39,7 +39,7 @@ def local_search_partitioning(ssa_obj: Union[m_SSA, t_SSA], init_grouping_list: 
         ssa_clas_temp = SSA_classic(ssa_obj.t_s_list[i], ssa_obj.L)
         
         if isinstance(ssa_obj, t_SSA):
-            ssa_clas_temp.weights, ssa_clas_temp._left_factors, ssa_clas_temp._right_factors = ssa_obj._get_available_factors(i)
+            ssa_clas_temp.weights, ssa_clas_temp._left_factors, ssa_clas_temp._right_factors = ssa_obj.get_available_factors(i)
         if isinstance(ssa_obj, m_SSA):
             ssa_clas_temp.weights, ssa_clas_temp._left_factors, ssa_clas_temp._right_factors = \
                     ssa_obj.weights, ssa_obj._left_factors, ssa_obj._right_factors[:, temp:temp + (cur_sig_len - ssa_obj.L + 1)]
@@ -145,7 +145,7 @@ def _InitSignalsArrays(ssa_obj: Union[m_SSA, t_SSA]):
         signals_index_array = []
 
         for sig_num in range(num_signals):
-            signal_weights, _, _ = ssa_obj._get_available_factors(sig_num)
+            signal_weights, _, _ = ssa_obj.get_available_factors(sig_num)
             
             signals_index_array.append([list(range(signal_weights.size))])
 
@@ -305,7 +305,7 @@ def _init_classic_ssa(ssa_obj: Union[m_SSA, t_SSA], sig_num: int):
 
         classic_ssa_obj.weights, \
         classic_ssa_obj._left_factors, \
-        classic_ssa_obj._right_factors = ssa_obj._get_available_factors(sig_num)                           
+        classic_ssa_obj._right_factors = ssa_obj.get_available_factors(sig_num)                           
         
     return classic_ssa_obj
                                                                                     

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.16)  7 APR 2024 17:31
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.16)  14 MAY 2024 19:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1857,10 +1857,10 @@ Package logreq Info: Writing requests to 'Tensor_SSA_Semkin.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 46303 strings out of 479721
- 1014165 string characters out of 5887697
- 2149658 words of memory out of 5000000
- 63327 multiletter control sequences out of 15000+600000
+ 46301 strings out of 479721
+ 1014135 string characters out of 5887697
+ 2149489 words of memory out of 5000000
+ 63325 multiletter control sequences out of 15000+600000
  498284 words of font info for 99 fonts, out of 8000000 for 9000
  430 hyphenation exceptions out of 8191
  89i,19n,83p,1885b,2230s stack positions out of 5000i,500n,10000p,200000b,80000s

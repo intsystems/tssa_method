@@ -19,8 +19,8 @@ class t_SSA(SSA_Base):
         self._left_factors: np.ndarray = None
         self._right_factors: np.ndarray = None
 
-        # list for each signal containing factor nums to be removed
-        self._dispose_factors_list = [[] for i in range(len(signals))]
+        # list for each signal containing its available factor nums 
+        self._signals_available_factors = [np.arange(cpd_rank) for i in range(len(signals))]
 
         # list of grouping of factors for each signal
         self.grouping = [[] for i in range(len(signals))]
@@ -46,7 +46,7 @@ class t_SSA(SSA_Base):
     def set_factors_grouping(self, grouping: list, signal_num: int):
         """set grouping of factors for particular signal. Numeration must consider disposed factors if exist.
 
-        :param list grouping: list of list of indecies corresponding to number of factors to group
+        :param list grouping: list of list of indicies corresponding to number of factors to group
         :param int signal_num: number of signal to set grouping for
         """
         self.grouping[signal_num] = grouping
@@ -59,7 +59,8 @@ class t_SSA(SSA_Base):
         :param list indices: factors to remove
         :return: relative residual between new and old traj. matrices 
         """
-        self._dispose_factors_list[signal_num] = indices
+        self._signals_available_factors[signal_num] = \
+                                        np.delete(self._signals_available_factors[signal_num], indices)
 
         # computing relative residual between new and old traj. matrices
         rel_residual = linalg.norm(self.weights[signal_num][indices], ord=2) / linalg.norm(self.weights[signal_num], ord=2)
@@ -127,7 +128,7 @@ class t_SSA(SSA_Base):
 
             # set factors and grouping
             ssa_classic_obj.weights, ssa_classic_obj._left_factors, ssa_classic_obj._right_factors = \
-                                                                                self._get_available_factors(i)
+                                                                                self.get_available_factors(i)
 
             try:
                 ssa_classic_obj.set_factors_grouping(self.grouping[i])
@@ -216,7 +217,7 @@ class t_SSA(SSA_Base):
         :raises linalg.LinAlgError: if unable to reverse A_kn.T @ A_kn
         """
         # get available factors
-        _, avail_l_factors, _ = self._get_available_factors(sig_num)
+        _, avail_l_factors, _ = self.get_available_factors(sig_num)
         
         # compute needed vector
         A_kn = avail_l_factors[:-1]
@@ -229,15 +230,14 @@ class t_SSA(SSA_Base):
         self._pred_vecs[sig_num] = pred_vec
 
 
-    def _get_available_factors(self, sig_num: int) -> tuple:
+    def get_available_factors(self, sig_num: int) -> tuple:
         """return weights and factors for given signal considering disposed ones
         """
         # obtain avialaible indices 
-        all_indxs = np.arange(self._cpd_rank, dtype=np.int16)
-        avail_indxs = np.delete(all_indxs, np.array(self._dispose_factors_list[sig_num], dtype=np.int16))
+        avail_indxs = self._signals_available_factors[sig_num]
 
         # return available (not deleted) factors 
-        return self.weights[sig_num][avail_indxs], self._left_factors[:, avail_indxs], self._right_factors[avail_indxs]
+        return self.weights[sig_num][avail_indxs], self._left_factors[:, avail_indxs], self._right_factors[avail_indxs, :]
         
 
     def _construct_traj_tensor(self):
