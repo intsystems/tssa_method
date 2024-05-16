@@ -10,34 +10,6 @@
 \newtheorem{Lem}{Лемма}
 \newtheorem{Th}{Теорема}
 
-\usepackage{listings}
-
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\lstdefinestyle{mystyle}{
-	backgroundcolor=\color{backcolour},   
-	commentstyle=\color{codegreen},
-	keywordstyle=\color{magenta},
-	numberstyle=\tiny\color{codegray},
-	stringstyle=\color{codepurple},
-	basicstyle=\ttfamily\footnotesize,
-	breakatwhitespace=false,         
-	breaklines=true,                 
-	captionpos=b,                    
-	keepspaces=true,                 
-	numbers=left,                    
-	numbersep=5pt,                  
-	showspaces=false,                
-	showstringspaces=false,
-	showtabs=false,                  
-	tabsize=2
-}
-
-\lstset{style=mystyle}
-
 \newcommand{\delayV}[1]{\overset{\leftarrow}{\mathbf{x}}_{#1}}
 \newcommand{\delayM}[1]{\overset{\leftarrow}{\mathbf{X}}_{#1}}
 
@@ -56,7 +28,7 @@
 		
 	\end{abstract}
 	
-	\textbf{Ключевые слова}: {\small временные ряды, декомпозиция, прогноз, SVD, SSA, каноническое тензорное разложение}.
+	\textbf{Ключевые слова}: {\small временные ряды, декомпозиция, прогноз, SSA, каноническое тензорное разложение}.
 	
 	
 	\section{Введение}\label{Intro}
@@ -87,7 +59,7 @@
 		
 		Далее в работе будет формально введена математическая модель порождения временных рядов, поставлена задача поиска базиса в пространстве сигналов и предложено её решение. На его основе будет рассмотрен наш способ построения декомпозиции и прогноза для рядов, а также проанализированы его свойства и вычислительные особенности. Далее рассмотренные выше методы будут применены к реальным данным потребления электроэнергии и $ TODO $, будут проанализированы их точность предсказания. C помощью mSSA и tSSA мы также построим декомпозиции сигналов и сравним их по специальной метрике --- \emph{невязки ганкелизации}, определение которой будет дано ниже.
 		 
-	\section{Постановка задачи}
+	\section{Постановка задачи}\label{sec:problem_statement}
 		 
 		 Пусть имеем набор временных рядов $ \{x_i(t)\}_{i=1}^m $. Гипотеза возникновения этих рядов - существование некой \emph{порождающей динамической системы}. Под этим понимается модель эволюции во времени (для простоты, дискретном) обобщённой переменной $ \mathbf{y} \in X $:
 		 	
@@ -171,77 +143,61 @@
 	    	
 	    	\begin{proof}
 	    		Возьмём две матрицы $ A $ и $ B $ одного размера и рассмотрим их элементы с одной антидиагонали $ a_1, \ldots, a_n $ и $ b_1, \ldots, b_n $. Тогда соответствующая антидиагональ в $ \text{Hankel}(A + B) $ равна $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $, т.е. равна сумме антидиагоналей матриц $ \text{Hankel}(A) $ и $ \text{Hankel}(B) $.
+	    		
+	    		Для произвольного скаляра $ \alpha $ также очевидно $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $, из чего следует $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
 	    	\end{proof}
 	    	
 	    	Учитывая, что $ \mathbf{H}_{x_k} $ --- ганкелева, мы полностью обосновали корректность процедуры построения декомпозиции временного ряда.
 	    	
-	    	Несмотря на это, хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более "ганкелевой". Это соответствует изначальной идее о связи разложений матриц и сигналов, а также повышает интерпретируемость компонент.    Для дальнейшей оптимизации группировки введём меру "гакелевости".
+	    \subsection*{Вычислительная сложность декомпозиции}
 	    	
-	    	\begin{Def}
-	    		\emph{Невязкой ганкелизации} матрицы $ \mathbf{H} $ назовём $ \text{r}(\mathbf{H}) = \lVert \mathbf{H} - \text{Hankel}(\mathbf{H}) \rVert_{F}^2 $ 
-	    	\end{Def}
+	    	Несмотря на полученный результат, хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более "ганкелевой". Это соответствует изначальной идее о связи разложений матриц и сигналов, а также повышает интерпретируемость компонент. Опишем задачу более формально и исследуем её.
 	    	
-	    	В статистическом плане, эта невязка соответствует суммарной дисперсии антидиагоналей матрицы.
+	    	Рассмотрим первое равенство в (\ref{eq:decomp_method_ideal}), а также применим к нему оператор ганкелизации:
 	    	
-	    	Теперь для поиска декомпозиции ряда будем искать разбиение факторов, наилучшее в плане средней ганкелевой невязки:
-	    	
-	    	\begin{gather*}
-	    		\frac{1}{s} \sum\limits_{j = 1}^s \text{r}(C_s) \to \min \\
+	    	\begin{equation*}
 	    		\begin{cases*}
-	    			C_j = \sum\limits_{i \in \mathbb{I}_j} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}, \  \forall j = 1 \ldots s \\
-	    			\mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} \\
-	    			s \in \{2 \ldots r\}
+	    			\mathbf{H}_{x_k} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \\
+	    			\mathbf{H}_{x_k} = \sum\limits_{i = 1}^{r} Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}})
 	    		\end{cases*}
-	    	\end{gather*}
+	    	\end{equation*}
 	    	
-	    	В итоге имеем задачу дискретной оптимизации по множеству всех разбиений и, скорей всего, для неё нет быстрого алгоритма поиска решения [TODO NP-hard]. Поэтому предлагается следующая эвристика: имея оптимальное разбиение на данное число групп, продолжать разбивать каждую из них на две оптимальным внутри этой группы способом. Так можно продолжать до получения достаточного числа компонент. Данный принцип проиллюстрирован на рис.\ref{pic:decomp_conception}. С точки зрения декомпозиции исходного ряда мы получаем его оптимальное разбиение на две компоненты, а затем продолжаем декомпозировать их независимо друг от друга. Получаем рекурсивную процедуру \emph{DichotomyPartition}, которую можно адаптивно перезапускать для получения нужного количества компонент:
+	    	Вычтем из первого втрое и обозначим $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $, что соответствует невязке между исходной матрицей и её ганкелизацией. Т.о. получим:
 	    	
-	    	\begin{lstlisting}[language=Python, caption={Псевдокод процедуры рекурсивного получения декомпозиции временного ряда},]
-	    		def DichotomyPartition(num_components):
-	    			"""
-	    			Args:
-	    			num_components: how many components from initial signal
-	    							 							is desired 
-		    		
-	    			Returns:
-	    			factor groups related to best signal decomposition
-	    			"""
-	    			# at the start we have one group of factors,
-	    			# which forms hankel trajectory matrix
-	    			partition_list = [[1, 2, 3, ..., r]]
-	    			mean_hankel_resid = 0
-	    			
-	    			# proceed until we obrain enough groups
-	    			while len(partition_list) < num_components:
-	    				new_partition_list = []
-	    		
-	    				# disect each group into two optimally within this group
-	    				# FullSearch test all possible partitions into 2 groups
-	    				# and find best in terms of Mean Hankel Residual
-	    				for partition in partition_list:
-	    					sub_partition_1, sub_partition_2 = FullSearch(partition)
-	    		
-	    					new_partition_list.extend(sub_partition_1, sub_partition_2)
-	    		
-	    				# calculate Mean Hankel Residual of new partition 
-	    				mean_hankel_resid = CalculateResidual(new_partition_list)
-	    				
-	    				yield new_partition_list, mean_hankel_resid
-	    				
-	    				# save new partition
-	    				partition_list = new_partition_list    		
-	    	\end{lstlisting}
+	    	\begin{equation*}
+	    		H_1 + \ldots + H_r = 0 \Leftrightarrow H_r = - \sum\limits_{j = 1}^{r - 1} H_j
+	    	\end{equation*}
 	    	
-	    	\begin{figure}[h!]
-	    		\centering
-	    		\includegraphics[width=0.6\textwidth, keepaspectratio]{../figs/dichotomy_drawings/factors.png}    
-	    		
-	    		$ \Updownarrow $
-	    				
-	    		\includegraphics[width=0.6\textwidth, keepaspectratio]{../figs/dichotomy_drawings/signals.png}	
-	    		
-	    		\caption{Пример рекурсивного разбиения факторов (в виде индексов) на 4 группы. На каждом уровне ищется оптимальное разбиение внутри уже построенных группировок. С точки зрения разложения временных рядов мы рекурсивно раскладываем каждую полученную на данном уровне компоненту на две подкомпоненты.}\label{pic:decomp_conception}
-	    	\end{figure}
+	    	Теперь группировка факторов и ганкелевость итоговых матриц $ C_i $ становится равносильна $ \sum\limits_{k \in \mathbb{I}_i} H_k = 0, \  \forall i \in 1, \ldots, s $, т.е. суммированию в ноль матриц невязок внутри каждой группы. Несложно заметить, что если существует разложение на $ s $ групп, то к нему можно прийти, раскладывая последовательно факторы на две группы, так что остановимся на поиске этого простого разделения.
+	    	
+	    	Мы видим, что матрицы невязок все вместе уже суммируются в $ 0 $, т.е. группу для $ H_r $ можно определить, сгруппировав оставшиеся невязки. Введём для каждой из них переменную-индикатор $ \beta_j \in \{0, 1\} $, показывающей, к какой из двух групп относится $j$-ая. Невязки в одной группе суммируются в $ 0 $; также считаем, что все они ненулевые (иначе мы уже имеем искомую группировку), т.е. в группе должно быть хотя бы две невязки. Т.о. задача поиска группировки свелась к следующей:
+	    	
+	    	\begin{equation}
+	    		\begin{cases*}
+	    			\sum\limits_{j = 1}^{r - 1} \beta_j H_j = 0 \\
+	    			\beta_j \in \{0, 1\}, \ \forall j \in 1, \ldots, r \\
+	    			\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2
+	    		\end{cases*}
+	    	\end{equation}
+	    	
+	    	Для придания задаче более привычного вида, во-первых, векторизуем каждую $ H_i $, и соберём все эти векторы в одну матрицу $ \Lambda $, а также введём $ \boldsymbol{\beta} = (\beta_1 \ldots \beta_{r-1}) $. Также вспомним, что мы не ждём идеальной ситуации суммирования в $ 0 $ матриц невязок (ганкелевости $ C_i $), нам достаточно сделать сумму как можно более близкой к нулю. Это приводит нас к конечной формулировке:
+	    	
+	    	\begin{equation}\label{eq:decomp_search_final}
+	    		\begin{cases*}
+	    			\lVert \Lambda \boldsymbol{\beta} \rVert \to \underset{\boldsymbol{\beta}}{\min} \\
+	    			\beta_j \in \{0, 1\}, \ \forall j \in 1, \ldots, r \\
+	    			\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2
+	    		\end{cases*}
+	    	\end{equation}
+	    	
+	    	Назовём решение этой системы \emph{оптимальной декомпозицией ряда}. Она представляет из себя задачу наименьших квадратов с целочисленными ограничениями (ILS), которая, как показано в \cite{van1981another}, является NP-сложной. Все проведённые рассуждения приводят к:
+	    	
+	    	\begin{Th}
+	    		Оптимальная декомпозиция ряда, в смысле поиска группировки факторов разложения траекторной матрицы ряда, является NP-сложной задачей.
+	    	\end{Th}
+	    	
+	    	Несмотря на данный результат существуют методы и эвристики для сведения ILS к эффективно вычислим задачам \cite{Grafarend2022}.
+	    	
 	    	
 	    \subsection*{Прогноз для набора рядов}
 	     
@@ -260,7 +216,7 @@
 	    		\delayV{N + 1} = (\mathbf{x}_{kn} \  x(N + 1))^{\mathsf{T}} \nonumber
 	    	\end{gather}
 	    	
-	    	Здесь $ \boldsymbol{\lambda} \in \mathbb{R}^r $, вектор задержки и матрица представлены в блочном виде для отделения известной части сигнала и его будущего значения. Т.о. для прогноза необходимо найти $ \boldsymbol{\lambda} $ из первой части системы (\ref{eq:main_pred_for_A}). Матрица данной СЛАУ $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ имеет ранг не менее $ r - 1 $, но даже пусть ранг будет полный. Сама система в силу предположения модели $ r \ll L $ является переопределённой. Значит, решение здраво искать только в смысле метода наименьших квадратов: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. В итоге прогноз модели даётся формулой:
+	    	Здесь $ \boldsymbol{\lambda} \in \mathbb{R}^r $, вектор задержки и матрица представлены в блочном виде для отделения известной части сигнала и его будущего значения. Т.о. для прогноза необходимо найти $ \boldsymbol{\lambda} $ из первой части системы (\ref{eq:main_pred_for_A}). Матрица данной СЛАУ $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ имеет ранг не менее $ r - 1 $, но даже пусть ранг будет полный. Сама система в силу предположения модели $ r \ll L $ является переопределённой. Значит, решение здраво искать только в смысле метода наименьших квадратов: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. В итоге прогноз модели даётся:
 	    	
 	    	\begin{equation}\label{eq:tssa_pred}
 	    		x(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn}
@@ -268,15 +224,218 @@
 	    
 	    	 Здесь $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T = \mathbf{d}^{\mathsf{T}} $ --- вектор-строка, и, вычислив её один раз, можно быстро строить предсказания на несколько шагов, последовательно получая $ x(N + 1), x(N + 2), $  и т.д.
 	    	 
-	    	 Если расписать (\ref{eq:tssa_pred}) в терминах $ x(t) $:
+	    	 Распишем (\ref{eq:tssa_pred}) в терминах $ x(t) $:
 	    	 
 	    	 \begin{equation*}\label{eq:autoregr}
 	    	 	x(t) = \sum\limits_{i = 1}^{L - 1} d_i \cdot x(t - i)
 	    	 \end{equation*}
 	    	 
-	    	 Получаем, что предсказание методом tSSA, по-сути, сводится к \textit{авторегрессионной} модели ряда $ AR(L - 1) $. Соответственно, поведение прогноза полностью определяется коэффициентами $ d_i $.
+	    	 Данное выражение приводит нас к результату:
+	    	 
+	    	 \begin{Th}
+	    	 	Модель прогнозируемого методом tSSA ряда --- \textit{авторегрессионная} $ AR(L - 1) $. Поведение прогноза полностью определяется коэффициентами авторегрессии $ d_i $, найденными в (\ref{eq:tssa_pred}).
+	    	 \end{Th}
 	    
 	\section{Эксперимент}	
+	
+		\subsection*{Цели и постановка}
+	
+			В данном разделе мы рассмотрим применение метода tSSA для декомпозиции и прогноза нескольких многомерных временных рядов, а также сравним его с другими моделями, упомянутыми во введении: mSSA, VAR, RNN. Упомянем, что mSSA практически идентична нашему подходу, за исключением способа построения разложения траекторных матриц, а две другие модели способны только к предсказанию.
+		
+			Для измерения \textbf{качества декомпозиции} введём метрики:
+			
+			\begin{Def}
+				\emph{Абсолютной ошибкой ганкелизации} матрицы M назовём 
+				
+				\[
+					\text{AHE} = \lVert M - \text{Hankel}(M) \rVert_2
+				\] 
+				
+			\end{Def}	
+			
+			\begin{Def}		
+				
+				\emph{Относительной ошибкой ганкелизации} матрицы M назовём 
+				
+				\[
+				\text{RHE} = \frac{\text{AHE}}{\lVert M \rVert_2} 
+				\] 		
+				
+			\end{Def}
+			
+			AHE можно представлять как суммарное стандартное отклонение антидиагоналей матрицы. RHE её более интерпретируемая модификация, которая и будет использоваться далее. 
+			
+			Напомним, что разложение ряда на компоненты эквивалентно группировке факторов разложения траекторной матрицы сигнала, т.е. получению матриц $ C_i $ (см. раздел Декомпозиция набора рядов). Именно для них мы и будем рассчитывать RHE, а также среднее RHE по одному ряду --- $ \overline{\text{RHE}}_{ts} $, и среднее RHE всех рядов датасета --- $ \overline{\text{RHE}} $.
+			
+			Для измерения \textbf{качества прогноза} ряда будем использовать стандартные метрики: среднеквадратическую ошибку $ \text{MSE}_{ts} $ и среднюю абсолютную процентную ошибку $ \text{MAPE}_{ts} $, а также их усреднения по всему датасету c обозначениями $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $.
+			
+			В качестве сигналов будут рассмотрены два набора данных: потребление электроэнергии, её цена за единицу мощности (рис. \ref{fig:electr_data}); а также три ряда, характеризующие погоду г. Берлин в период с 1980 по 1990 год: средние за день температура, осадки и атмосферное давление (рис. \ref{fig:weather_data}). Мы предполагаем наличие связи рядов в каждом наборе (на основе экономических/физических причин), т.к. это важное условие для применения нашего метода, см. раздел Взаимосвязь рядов и метод tSSA. Каждый ряд имеет длину $ \approx 3 \cdot 10^3 $, где около $ 20\% $ --- отложенная выборка для оценки качества прогноза.
+			
+			\begin{figure}[h]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../figs/Electricity_Production}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../figs/Electricity_Price}
+				\caption{Многомерный ряд потребления электричества и его цены за единицу мощности}\label{fig:electr_data}
+			\end{figure}
+			
+			\begin{figure}[h]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../figs/Temperature.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../figs/Precipitation.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../figs/Pressure.png}
+				\caption{Многомерный ряд физических величин: температуры, осадков и давления, измеренных на метеостанции г. Берлин}\label{fig:weather_data}
+			\end{figure}
+			
+			Опишем нюансы метода tSSA и других моделей. Во-первых, вычисление канонического ранга тензора --- NP-трудная задача \cite{HASTAD1990644}, поэтому каждый раз ранг разложения будет указываться явно. Во-вторых, используемый алгоритм CP-разложения --- ALS \cite{kolda_tensors}, имеет ошибку аппроксимации, из-за чего полученные разложения траекторных матриц будут неточными. Относительные величины этих невязок будут указаны ниже. В-третьих, для поиска декомпозиции рядов будет решаться задача ILS (\ref{eq:decomp_search_final}), в которой матрица имеет высокую строковую размерность. Для ускорения мы сократим её до несколько сотен, что всё ещё будет много больше размерности искомого вектора параметров. Солвер для ILS --- SCIP \cite{BolusaniEtal2024ZR}.
+			
+			Наконец, мы зафиксируем единый для всех моделей параметр, отвечающий за длину предуславливания методов на историю рядов, который обозначался за $ L $. Для tSSA и mSSA он был описан в начале раздела \ref{sec:problem_statement}; в RNN это можно считать длиной энкодера; в VAR это максимальная длина истории ряда, на которую производится авторегрессия. Везде ниже $ L = 500 $.		
+				
+		\subsection*{Результаты и обсуждение}
+		
+			Рассмотрим решение задачи прогнозирования. На рис. \ref{fig:mse_mape_electr} и рис. \ref{fig:mse_mape_weather} отображена зависимость введённых метрик качества прогноза tSSA для разных рангов разложения. Точка минимума и характер рассматриваемой зависимости MSE и MAPE совпадают. Также наблюдается эффект переобучения при повышении значения ранга, особенно резкое ухудшение метрик у данных погоды. При этом ошибка CP-разложения монотонно убывает, см. рис. \ref{fig:cpd_errors}.
+			
+			\begin{figure}[h!]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/prediction/MSE_rank.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/prediction/MAPE_rank.png}
+				\caption{Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг. Данные электроэнергии.}\label{fig:mse_mape_electr}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/prediction/MSE_rank.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/prediction/MAPE_rank.png}
+				\caption{Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг. Данные погодных условий.}\label{fig:mse_mape_weather}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/CPD_error.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/CPD_error.png}
+				\caption{Относительные ошибки CPD-аппроксимации траекторных тензоров в зависимости от ранга разложения. Слева --- электроэнергии, справа --- погоды.}\label{fig:cpd_errors}
+			\end{figure}
+			
+			Графики наилучшего прогноза tSSA приведены на рис. \ref{fig:tssa_electr_pred} и \ref{fig:tssa_weather_pred}. Хорошо виден характер предсказания в зависимости от величины ранга: в первом случае модель авторегрессии большего порядка (см. теорему раздела Прогноз для набора рядов), что позволяет точно аппроксимировать ряд. В случае же погоды большой порядок приводил к нестабильности и неограниченному росту прогноза, но когда порядок небольшой возможно аппроксимировать только тренд сигналов.
+			
+			Итоговые метрики качества всех моделей --- в табл. \ref{tab:pred_res_electr} и \ref{tab:pred_res_weather}. Наш метод показал наилучшие результаты, хотя mSSA был близок по точности. Метод VAR оказался нестабилен на выбранном горизонте прогнозирования, а RNN обучался в константную функцию.
+			
+			\begin{figure}[h!]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+				\caption{Предсказание данных электроэнергии методом tSSA. CPD-ранг $ = 30 $}\label{fig:tssa_electr_pred}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
+				%\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
+				\caption{Предсказание данных погоды методом tSSA. CPD-ранг $ = 5 $}\label{fig:tssa_weather_pred}
+			\end{figure}
+			
+			\begin{table}[h!]
+				\centering
+				\caption{Метрики моделей на прогнозировании данных электроэнергии}\label{tab:pred_res_electr}
+				\begin{tabular}{|c|c|c|c|c|}
+					\hline
+					& \textit{tSSA}  & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
+					MSE(Production), $10^6$ & 1.24           & 1.51          & 7.81         & 2.70         \\ \hline
+					MSE(Price), $10^3$      & 0.88           & 1.03          & 4.85         & 30.0         \\ \hline
+					MSE, $10^6$             & \textbf{0.62}  & 0.75          & 3.91         & 135.00       \\ \hline
+					MAPE(Production)        & 0.054          & 0.060         & 0.137        & 0.999        \\ \hline
+					MAPE(Price)             & 0.164          & 0.170         & 0.360        & 1.004        \\ \hline
+					MAPE                    & \textbf{0.109} & 0.115         & 0.249        & 1.002        \\ \hline
+				\end{tabular}
+			\end{table}
+			
+			\begin{table}[h!]
+				\centering
+				\caption{Метрики моделей на прогнозировании данных погоды}\label{tab:pred_res_weather}
+				\begin{tabular}{|c|c|c|c|c|}
+					\hline
+					& \textit{tSSA}                & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
+					MSE(Temp)  & 14.16                        & 20.12         & 40.67        & -            \\ \hline
+					MSE(Prec)  & 11.02                        & 11.23         & 22.84        & -            \\ \hline
+					MSE(Pres)  & 98.02                        & 101.23        & 156.75       & -            \\ \hline
+					MSE        & \textbf{41.067}              & 44.193        & 73.420       & -            \\ \hline
+					MAPE(Temp) & 0.850 & 0.626         & 0.468        & -            \\ \hline
+					MAPE(Prec) & 3.151 & 2.834         & 4.637        & -            \\ \hline
+					MAPE(Pres) & 0.007 & 1.254         & 3.983        & -            \\ \hline
+					MAPE       & \textbf{1.336}               & 1.571         & 3.029        & -            \\ \hline
+				\end{tabular}
+			\end{table}
+			
+			Теперь рассмотрим задачу декомпозиции. На рис. \ref{fig:decomp_rhe_rank} представлены зависимости качества разложения от значения CP-ранга. В обоих случаях $ \overline{\text{RHE}} $ достаточно быстро достигает минимума, после чего не меняется или растёт. Вспоминая аналогичный результат для прогнозирования, мы получаем, что метод tSSA достигает наибольшей обобщающей способности на малом каноническом ранге траекторных тензоров данных. В свою очередь, этот ранг пропорционален размерности собственного пространства сигналов, см. начало раздела \ref{sec:problem_statement}. Т.о. можно заключить о выполнении главной теоретической предпосылки применения нашего метода.
+			
+			На рис. \ref{fig:electr_decomp_tssa} и \ref{fig:weather_decomp_tssa} представлены результаты наилучшей найденной декомпозиции рядов на две компоненты методом tSSA. В силу вычислительной сложности задачи ILS разложение на большее количество компонент не производится. Из графиков видно, как сильно влияет общий базис сигналов на их декомпозицию: для генерации электроэнергии и её цены компоненты получились почти идентичными с точностью до смещения и масштаба. Аналогичная ситуация для температуры и осадков в данных погоды, а для атмосферного давления разложение получилось своё. Далее, на рис. \ref{fig:weather_decomp_tssa} метод выделил для каждого сигнала по две периодические составляющие: одна из них большой амплитуды, другая много меньшей. Небольшой шум остался в каждой компоненте. На рис. \ref{fig:electr_decomp_tssa} также выделил по два высокочастотных колебания разной амплитуды и смещения.
+			
+			Для сравнения на рис. \ref{fig:electr_decomp_mssa} и \ref{fig:weather_decomp_mssa} приведены результаты декомпозиции методом mSSA на пять компонент. Для их получения не было необходимости в решении ILS или подбора CP-ранка, но они подбиралась вручную на основе близости сингулярных чисел некоторой матрицы, см. \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Тем не менее компоненты получились более интерпретируемыми и подробными: метод выделял несколько трендов и гармоник отдельно. Также, как видно из табл. \ref{tab:decomp_electr_results} и \ref{tab:decomp_weather_results}, он оказался более точным. Т.о. вычислительная сложность декомпозиции tSSA является главной проблемой метода и требует разработки собственных эвристик, которые у mSSA уже имеются \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
+			
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/decomposition/RHE_mean.png}
+				\caption{Зависимость метрики $ \overline{\text{RHE}} $ от ранга CP-разложения. Слева --- для данных электроэнергии, справа --- погоды. Отдельно выделен оптимальный ранг.}\label{fig:decomp_rhe_rank}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
+				\caption{Разложение рядов на две компоненты методом tSSA. Данные электроэнергии. CPD-ранг $ = 20 $}\label{fig:electr_decomp_tssa}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
+				\caption{Разложение рядов на две компоненты методом tSSA. Данные погоды. CPD-ранг $ = 20 $}\label{fig:weather_decomp_tssa}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
+				\caption{Разложение рядов на компоненты методом mSSA. Данные электроэнергии.}\label{fig:electr_decomp_mssa}
+			\end{figure}
+			
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Temperature.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Precipitation.png}
+				\includegraphics[width=0.48\textwidth, keepaspectratio]{../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
+				\caption{Разложение рядов на компоненты методом mSSA. Данные погоды.}\label{fig:weather_decomp_mssa}
+			\end{figure}
+			
+			\begin{table}[h!]
+				\centering
+				\caption{Метрики моделей на задаче декомпозиции данных электроэнергии}\label{tab:decomp_electr_results}
+				\begin{tabular}{|c|c|c|}
+					\hline
+					& tSSA  & mSSA           \\ \hline
+					RHE(Production) & 0.507 & 0.308          \\ \hline
+					RHE(Price)      & 0.511 & 0.31           \\ \hline
+					RHE             & 0.509 & \textbf{0.309} \\ \hline
+				\end{tabular}
+			\end{table}
+			
+			\begin{table}[h!]
+				\centering
+				\caption{Метрики моделей на задаче декомпозиции данных погоды}\label{tab:decomp_weather_results}
+				\begin{tabular}{|c|c|c|}
+					\hline
+					& tSSA  & mSSA           \\ \hline
+					RHE(Temp)   & 0.512 & 0.467          \\ \hline
+					RHE(Precip) & 0.508 & 0.538          \\ \hline
+					RHE(Pres)   & 0.542 & 0.502          \\ \hline
+					RHE         & 0.521 & \textbf{0.502} \\ \hline
+				\end{tabular}
+			\end{table}
+			
+		
+	\section{Заключение}
 			
 		
 		\newpage
