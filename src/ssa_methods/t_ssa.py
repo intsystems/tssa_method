@@ -105,8 +105,8 @@ class t_SSA(SSA_Base):
         self.cpd_err_abs = tl.norm(traj_matr_copy, order=2) * reconstr_err[-1]
 
         # debug
-        print(f'Relative residual norm = {self.cpd_err_rel}')
-        print(f'Absolute residual norm = {self.cpd_err_abs}')
+        #print(f'Relative residual norm = {self.cpd_err_rel}')
+        #print(f'Absolute residual norm = {self.cpd_err_abs}')
 
 
     def decompose_signals(self) -> tuple:

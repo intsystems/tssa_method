@@ -1,7 +1,6 @@
-""" module contains algorithms of discrete optimization to find grouping with less hankelization residual (many signals case)
+""" Module contains algorithms of discrete optimization
+    to find grouping with least hankelization residual (multiple signals case)
 """
-import numpy as np
-import scipy.linalg as linalg
 
 from copy import deepcopy
 from typing import Union, List

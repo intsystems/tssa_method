@@ -9,7 +9,7 @@ from .ssa_classic import SSA_classic
 
 
 class m_SSA(SSA_Base):
-    """ class for mSSA method for decomposition and prediction of multidimensional time series
+    """ class of mSSA method for decomposition and prediction of multidimensional time series
     """
     def __init__(self, L: int, signals: list):
         """

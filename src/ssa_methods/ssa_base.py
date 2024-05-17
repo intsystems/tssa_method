@@ -1,11 +1,11 @@
 """
     introducing basic class for ssa, containing common complemetery methods
 """
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import numpy as np
 
 class SSA_Base:
-    """ Base class for SSA methods in package
+    """ Base class for SSA methods in the package
     """
 
     def __init__(self, L: int) -> None:
