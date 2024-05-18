@@ -5,14 +5,18 @@
 \newcommand{\delayV}[1]{\overset{\leftarrow}{\textbf{x}}_{#1}}
 \newcommand{\delayM}[1]{\overset{\leftarrow}{\mathbf{X}}_{#1}}
 
+\theoremstyle{definition}
+\newtheorem*{Def}{Определение}
+
 \usepackage{grffile}
 %\usepackage{graphicx}
 
 \setlength{\parskip}{0.1cm}
 
-\author{Сёмкин Кирилл \\ \medskip {\footnotesize Московский Физико-Технический Институт}}
 \date{2024}
 \title{Тензорная декомпозиция и прогноз для набора временных рядов}
+\author{Сёмкин Кирилл \inst{1}  \and Вадим Стрижов \inst{2}}
+\institute{\inst{1}  Московский физико-технический институт \and \inst{2} д.ф.-м.н., Московский физико-технический институт}
 
 \begin{document}
 	
@@ -23,7 +27,7 @@
 	\begin{frame}{Мотивация}
 		
 		\begin{alertblock}{Проблема}
-			Известные модели многомерных временных рядов (e.g. RNN, VAR) не позволяют строить их аддитивные декомпозиции. Методы разложения одномерных сигналов (e.g. Trend-Cycle Estimation, Seasonal Adjustment Methods) не учитывают взаимозависимость рядов.
+			Обработка многомерных временных рядов влечёт необходимость учёта взаимосвязей сигналов. Нейросетевые и статистические методы имеют большое количество параметров, и требуют изощрённых процедур обучения. При этом они не предлагают способа построения декомпозиции.
 		\end{alertblock}
 		
 		\begin{figure}[h]
@@ -32,7 +36,7 @@
 			\includegraphics[width=0.69\textheight, keepaspectratio]{img/prey_predetor_graph}
 			\includegraphics[width=0.28\textheight, keepaspectratio]{img/hare-lynx.jpg}
 			
-			\caption{График количества особей хищников и травоядных от времени}
+			\caption{График количества особей хищников и жертв от времени}
 			
 		\end{figure}
 		
@@ -46,7 +50,7 @@
 			\textbf{tSSA} = модель собственного пространства сигнала + тензорное представление данных + CPD
 		\end{exampleblock}
 		
-		Данный подход опирается на гипотезу порождения динамической системой и является расширением метода SSA.
+		Подход опирается на гипотезу порождения динамической системой и является расширением метода SSA.
 		
 	\end{frame}
 	
@@ -134,16 +138,16 @@
 		
 		Применим \textit{CPD-разложение} к траекторному тензору и рассмотрим его вид для каждого сечения по третьему измерению:
 		
-		\begin{equation}\label{eq:tSSA_decomp}
+		\begin{equation*}\label{eq:tSSA_decomp}
 			\textbf{T} = \sum\limits_{i = 1}^{r} \mathbf{a}_i \otimes \mathbf{b}_i \otimes \mathbf{c}_i \Leftrightarrow \begin{cases}
 				\mathbf{H}_{x_1} = \sum\limits^{r} \boldsymbol{\sigma}_{x_1}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}  \\
 				\mathbf{H}_{x_2} = \sum\limits^{r} \boldsymbol{\sigma}_{x_2}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \\
 				\ldots \\
 				\mathbf{H}_{x_m} = \sum\limits^{r} \boldsymbol{\sigma}_{x_m}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} 
 			\end{cases}
-		\end{equation}
+		\end{equation*}
 		
-		Получили разложение траекторных матриц сигналов по \emph{общему базису}, что выражает предположение взаимосвязанности рядов.
+		Получили разложение траекторных матриц сигналов по \emph{общему базису}, что и выражает взаимосвязанность рядов.
 		
 	\end{frame}
 	
@@ -151,36 +155,54 @@
 		
 		Для получения декомпозиции факторы разложения $ \mathbf{H}_{x_k} $ разбиваем на группы и \emph{ганкелизуем} --- усредняем матрицы по антидиагоналям.
 		
-		\begin{multline*}\label{eq:decomp_method_ideal}
+		\begin{multline*}
 			\mathbf{H}_{x_k} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} = \sum\limits_{i \in \mathbb{I}_1} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} + \ldots + \sum\limits_{i \in \mathbb{I}_s} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} = \\ = C_1 + \ldots + C_s = \text{Hankel}(C_1) + \ldots + \text{Hankel}(C_s)  \Leftrightarrow x_k(t) = c_1(t) + \ldots c_s(t)
 		\end{multline*}
 		
 		\begin{alertblock}{Проблема}
-			Хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более 'ганкелевой'.
-			
-			Мера 'ганкелевости' --- \emph{невязка ганкелизации}:
-			
-			\[
-				\text{r}(\mathbf{H}) = \lVert \mathbf{H} - \text{Hankel}(\mathbf{H}) \rVert_{F}^2
-			\]
+			Хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более "<ганкелевой">. Это бы усилило связь разложения траекторной матрицы и самого сигнала.
 		\end{alertblock}
 		
 	\end{frame}
 	
-	\begin{frame}{Декомпозиция сигналов}
+	\begin{frame}{Оптимальная декомпозиция}
 		
-		Будем искать разбиение факторов, наилучшее в плане средней ганкелевой невязки: $ \frac{1}{s} \sum\limits_{j = 1}^s \text{r}(C_s) \to \min $.
-		
-		Полученная задача дискретной оптимизации не имеет быстрого алгоритма поиска решения. В работе предложена эвристическая процедура на основе дихотомического разделения групп.
-		
-		\begin{figure}[h!]
-			\centering
-			\includegraphics[width=0.45\textwidth, keepaspectratio]{../../figs/dichotomy_drawings/factors.png}    
-			$ \mathrel{\raisebox{1.4cm}{$\Leftrightarrow$}} $
-			\includegraphics[width=0.45\textwidth, keepaspectratio]{../../figs/dichotomy_drawings/signals.png}	
+		\only<1>{
+			Обозначим невязку $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $, тогда из предыдущего выражения следует:
 			
-			\caption{Пример рекурсивного разбиения факторов (в виде индексов) на 4 группы и соответствующая декомпозиция сигнала.}\label{pic:decomp_conception}
-		\end{figure}
+			\begin{equation*}
+				H_1 + \ldots + H_r = 0 \Leftrightarrow H_r = - \sum\limits_{j = 1}^{r - 1} H_j
+			\end{equation*}
+			
+			Раскладываем на две группы. В каждой хотя бы две невязки, вместе суммирующиеся в ноль. Т.о. условие оптимальной декомпозиции:
+			
+			\begin{equation*}
+				\begin{cases*}
+					\sum\limits_{j = 1}^{r - 1} \beta_j H_j = 0 \\
+					\beta_j \in \{0, 1\}, \ \forall j \in 1, \ldots, r \\
+					\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2
+				\end{cases*} \Rightarrow
+				\begin{cases*}
+					\lVert \Lambda \boldsymbol{\beta} \rVert \to \underset{\boldsymbol{\beta}}{\min} \\
+					\beta_j \in \{0, 1\}, \ \forall j \in 1, \ldots, r \\
+					\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2
+				\end{cases*}
+			\end{equation*}
+		}
+		
+		\only<2>{
+			Раскладываем на две группы. В каждой хотя бы две невязки, вместе суммирующиеся в ноль. Т.о. условие оптимальной декомпозиции:
+			
+			\begin{equation*}
+				\begin{cases*}
+					\lVert \Lambda \boldsymbol{\beta} \rVert \to \underset{\boldsymbol{\beta}}{\min} \\
+					\beta_j \in \{0, 1\}, \ \forall j \in 1, \ldots, r \\
+					\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2
+				\end{cases*}
+			\end{equation*}
+			
+			Имеем задачу наименьших квадратов с целочисленными ограничениями (ILS), которая является NP-сложной.
+		}
 		
 	\end{frame}
 	
@@ -209,141 +231,182 @@
 		
 	\end{frame}
 	
-	\begin{frame}{Эксперимент}
+	\begin{frame}{Вычислительный эксперимент}
 		
 		Цель: 
 		
 		\begin{itemize}
-			\item сравнить качество разложения набора сигналов по \emph{невязке ганкелизации} с методом mSSA. 
-			\item сравнить качество построенного прогноза по метрикам \emph{MSE}, \emph{MAPE} с моделями RNN, VAR, mSSA
+			\item применить метод tSSA для декомпозиции и прогноза многомерных временных рядов, а также сравнить его с другими моделями: mSSA, VAR, RNN
 		\end{itemize}
 		
-		Рассматриваемые данные:
+		Рассматриваемые ряды:
 		
 		 \begin{itemize}
-		 	\item план выработки электричества на день и его цена производства на МВт
-		 	\item погодные условия в Берлине (температура, осадки, атмосферное давление)
+		 	\item план выработки электричества на день и цена его производства
+		 	\item метеорологические данные (температура, осадки, атмосферное давление)
+		 \end{itemize}
+		 
+		 Метрики:
+		 
+		 \begin{itemize}
+		 	\item MSE, MAPE для прогнозирования
+		 	\item AHE, RHE для декомпозиции
 		 \end{itemize}
 		
 	\end{frame}
 	
-	\begin{frame}{Электричество. Декомпозиция}
+	\begin{frame}{Вычислительный эксперимент}
+		
+		\begin{Def}
+			\emph{Абсолютной ошибкой ганкелизации} матрицы M назовём 
+			
+			\[
+			\text{AHE} = \lVert M - \text{Hankel}(M) \rVert_2
+			\] 
+		\end{Def}
+		
+		\begin{Def}		
+			
+			\emph{Относительной ошибкой ганкелизации} матрицы M назовём 
+			
+			\[
+			\text{RHE} = \frac{\text{AHE}}{\lVert M \rVert_2} 
+			\] 		
+			
+		\end{Def}
+		
+		AHE можно представлять как суммарное стандартное отклонение антидиагоналей матрицы. RHE её более интерпретируемая модификация, которая и будет использоваться далее. 
+		
+		Данные метрики будут применяться к матрицам группировки факторов $ C_i $.
+	
+	\end{frame}
+	
+	\begin{frame}{Данные}
+		\setlength{\parskip}{0.0001cm}
 		
 		\begin{figure}[h]
 			\centering
-			
-			\includegraphics[width=0.49\textwidth, keepaspectratio]{img/electricity/tssa/decomposition/Production_program.eps} 
-			\includegraphics[width=0.49\textwidth, keepaspectratio]{img/electricity/tssa/decomposition/Price.eps}    
-			
-			\caption{Декомпозия методом tSSA на 4 компоненты через дихотомию. Вид компонент для сигналов идентичный. Наблюдается основной тренд убывания, и три тренда на возрастание. Шумовую часть метод не извлёк.}
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../figs/Electricity_Production}
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../figs/Electricity_Price}
+			\caption{Потребление электричества и его цены за единицу мощности}\label{fig:electr_data}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../figs/Temperature.png}
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../figs/Precipitation.png}
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../figs/Pressure.png}
+			\caption{Температура, осадки и давление, измеренные на метеостанции г. Берлин}\label{fig:weather_data}
 		\end{figure}
 		
 	\end{frame}
 	
-	\begin{frame}{Электричество. Декомпозиция}
+	\begin{frame}{Электроэнергия. Прогноз}
+		
+		\only<1>{
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.43\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MSE_rank.png}
+				\includegraphics[width=0.43\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MAPE_rank.png}
+				\caption{Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг.}\label{fig:mse_mape_electr}
+			\end{figure}
+				
+				Наблюдается эффект переобучения при повышении значения ранга.
+				
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=0.43\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
+					\includegraphics[width=0.43\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+					\caption{Предсказание данных электроэнергии методом tSSA. CPD-ранг $ = 30 $.}\label{fig:tssa_electr_pred}
+				\end{figure}
+		}
+			 
+		\only<2>{
+			\def\arraystretch{1.1}
+			\begin{table}[h]
+				\centering
+				\caption{Метрики моделей на прогнозировании данных электроэнергии}\label{tab:pred_res_electr}
+				\begin{tabular}{|c|c|c|c|c|}
+					\hline
+					& \textit{tSSA}  & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
+					$ \overline{\text{MSE}}_{\text{Producution}} $, $10^6$ & 1.24           & 1.51          & 7.81         & 2.70         \\ \hline
+					$ \overline{\text{MSE}}_{\text{Price}} $, $10^3$      & 0.88           & 1.03          & 4.85         & 30.0         \\ \hline
+					$ \overline{\text{MSE}} $, $10^6$             & \textbf{0.62}  & 0.75          & 3.91         & 135.00       \\ \hline
+					$ \overline{\text{MAPE}}_{\text{Producution}} $        & 0.054          & 0.060         & 0.137        & 0.999        \\ \hline
+					$ \overline{\text{MAPE}}_{\text{Price}} $             & 0.164          & 0.170         & 0.360        & 1.004        \\ \hline
+					$ \overline{\text{MAPE}} $                    & \textbf{0.109} & 0.115         & 0.249        & 1.002        \\ \hline
+				\end{tabular}
+			\end{table}
+			
+			Наш метод показал наилучшие результаты, хотя mSSA был близок по точности. Метод VAR оказался нестабилен на выбранном горизонте прогнозирования, а RNN обучался в константную функцию.
+		}
+			 
+	\end{frame}
+	
+	\begin{frame}{Электроэнергия. Декомпозиция}
+		
 		\begin{figure}[h]
 			\centering
-			
-			\includegraphics[width=0.49\textwidth, keepaspectratio]{img/electricity/mssa/decomposition/Production_program.eps} 
-			\includegraphics[width=0.49\textwidth, keepaspectratio]{img/electricity/mssa/decomposition/Price.eps}    
-			
-			\caption{Декомпозия методом mSSA на 4 компоненты подбором групп на основе близости сингулярных чисел. Полученные разложения имеют различный вид для сигналов. Выделены основные тренды и три низкоамплитудных осциллирующих сигнала. Последняя компонента содержит в себе шум, остальные от него очищены.}
+			\includegraphics[width=0.43\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
+			\caption{Зависимость метрики $ \overline{\text{RHE}} $ от ранга CP-разложения. Данные электроэнергии. Отдельно выделен оптимальный ранг.}
 		\end{figure}
-	\end{frame}
-	
-	\begin{frame}{Электричество. Прогноз}
 		
-		\begin{columns}
-			
-			\column{0.5\textwidth}
-			
-			\begin{figure}[h]
-				\centering
-				
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/tssa/prediction/Production_program.eps} 
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/tssa/prediction/Price.eps}    
-				\caption{Прогноз tSSA на тестовой части рядов}
-				
-			\end{figure}
-			
-			\column{0.5\textwidth}
-			
-			\begin{figure}[h]
-				\centering
-				
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/mssa/prediction/Production_program.eps} 
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/mssa/prediction/Price.eps}    
-				\caption{Прогноз mSSA на тестовой части рядов}
-				
-			\end{figure}
-			
-		\end{columns}
+		Метод tSSA достигает наибольшей обобщающей способности на небольших канонических рангах траекторных тензоров рядов, что подтверждает гипотезу о низкой собственной размерности данных.
 		
 	\end{frame}
 	
-	\begin{frame}{Электричество. Прогноз}
+	\begin{frame}{Электроэнергия. Декомпозиция}
 		
-		\begin{columns}
-			
-			\column{0.5\textwidth}
-			
-			\begin{figure}[h]
-				\centering
-				
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/var/prediction/Production_program.eps} 
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/var/prediction/Price.eps}    
-				\caption{Прогноз VAR на тестовой части рядов}
-				
-			\end{figure}
-			
-			\column{0.5\textwidth}
-			
-			\begin{figure}[h]
-				\centering
-				
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/rnn/prediction/Production_program.eps} 
-				\includegraphics[width=\textwidth, keepaspectratio]{img/electricity/rnn/prediction/Price.eps}    
-				\caption{Прогноз RNN на тестовой части рядов}
-				
-			\end{figure}
-			
-		\end{columns}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
+			\caption{Разложение рядов на две компоненты методом tSSA. Данные электроэнергии. CPD-ранг $ = 20 $}
+		\end{figure} 
+		
+		В силу вычислительной сложности задачи ILS, разложение на б$\acute{\text{о}}$льшее количество компонент не производится. 
+		
+		Из графиков видно, как сильно общий базис сигналов влияет на их декомпозицию: компоненты рядов получились почти идентичными, с точностью до смещения и масштаба. Метод выдели две гармоники разных амплитуд.
 		
 	\end{frame}
 	
-	\begin{frame}{Электричество. Итоги}
+	\begin{frame}{Электроэнергия. Декомпозиция}
 		
+		\def\arraystretch{1.1}
 		\begin{table}[h]
-			\caption{Сравнение методов по качеству декомпозиции сигналов.}
-			\begin{tabular}{lllll}
-				\cline{1-3}
-				\multicolumn{1}{|c|}{\textit{Метод}}                        & \multicolumn{1}{c|}{tSSA}  & \multicolumn{1}{c|}{mSSA}  &  &  \\ \cline{1-3}
-				\multicolumn{1}{|c|}{\textit{Ср. отн. невязка ганкелизации}} & \multicolumn{1}{c|}{0.802} & \multicolumn{1}{c|}{0.309} &  &  \\ \cline{1-3}
-			\end{tabular}
-		\end{table}
-		
-		\begin{table}[h]
-			\caption{Сравнение методов по качеству прогноза производства электричества.}
-			\begin{tabular}{ccccc}
+			\centering
+			\caption{Метрики моделей на декомпозиции данных электроэнергии}
+			\begin{tabular}{|c|c|c|}
 				\hline
-				\multicolumn{1}{|c|}{\textit{Метод}} & \multicolumn{1}{c|}{tSSA} & \multicolumn{1}{c|}{mSSA} & \multicolumn{1}{c|}{VAR} & \multicolumn{1}{c|}{RNN} \\ \hline
-				\multicolumn{1}{|c|}{\textit{MSE, $10^6$}}   & \multicolumn{1}{c|}{$1.56$}     & \multicolumn{1}{c|}{$1.50$}     & \multicolumn{1}{c|}{$7.81$}    & \multicolumn{1}{c|}{-}    \\ \hline
-				\multicolumn{1}{|c|}{\textit{MAPE}}  & \multicolumn{1}{c|}{$0.059$}     & \multicolumn{1}{c|}{$0.059$}     & \multicolumn{1}{c|}{$0.13$}    & \multicolumn{1}{c|}{-}    \\ \hline
+				& tSSA  & mSSA           \\ \hline
+				$ \overline{\text{RHE}}_{\text{Producution}} $  & 0.507 & 0.308          \\ \hline
+				$ \overline{\text{RHE}}_{\text{Price}} $      & 0.511 & 0.31           \\ \hline
+				$ \overline{\text{RHE}} $             & 0.509 & \textbf{0.309} \\ \hline
 			\end{tabular}
 		\end{table}
 		
-		\begin{table}[h]
-			\caption{Сравнение методов по качеству прогноза цены электричества.}
-			\begin{tabular}{ccccc}
-				\hline
-				\multicolumn{1}{|c|}{\textit{Метод}} & \multicolumn{1}{c|}{tSSA} & \multicolumn{1}{c|}{mSSA} & \multicolumn{1}{c|}{VAR} & \multicolumn{1}{c|}{RNN} \\ \hline
-				\multicolumn{1}{|c|}{\textit{MSE, $10^3$}}   & \multicolumn{1}{c|}{$1.03$}     & \multicolumn{1}{c|}{$1.03$}     & \multicolumn{1}{c|}{$4.85$}    & \multicolumn{1}{c|}{-}    \\ \hline
-				\multicolumn{1}{|c|}{\textit{MAPE}}  & \multicolumn{1}{c|}{$0.18$}     & \multicolumn{1}{c|}{$0.17$}     & \multicolumn{1}{c|}{$0.36$}    & \multicolumn{1}{c|}{-}    \\ \hline   
-			\end{tabular}
-		\end{table}
-
+		Метод tSSA немного проигрывает по точности разложения. Кроме того, для него пока отсутствуют эвристики поиска оптимальных группировок, в отличие от mSSA. 
+		
+		Т.о. для tSSA необходимо или открывать собственные эмпирические закономерности, или менять принцип построения декомпозиции.
+		
 	\end{frame}
-
+	
+	\begin{frame}{Выносится на защиту}
+		
+		Тензорный метод tSSA был разработан для прогноза и декомпозиции набора временных рядов, обработка которых требует учёта фактора взаимосвязанности. Его главное достоинство --- проста в использовании: имеется всего два настраиваемых параметра, для которых не требуется изощрённых процедур обучения. Вместе с тем, теоретическое обоснование на основе довольно общей теории динамических систем. Главным вызовом метода является результат о NP-сложности поиска оптимальной декомпозиции рядов.
+		
+	\end{frame}
+	
+	\begin{frame}{Литература}
+		
+		\begin{itemize}
+			\item D. Stepanov и N. Golyandina. «SSA-based approaches to analysis and forecast of multidimensional
+			time series». В: Proceedings of the 5th St.Petersburg Workshop on Simulation. 2005,	с. 293—298.
+			\item Floris Takens. «Detecting Strange Attractors in Turbulence». В: Dynamical Systems and Turbulence, Warwick 1980. Под ред. David Rand и Lai-Sang Young. Т. 898. Lecture	Notes in Mathematics. Berlin: Springer, 1981. Гл. 21, с. 366—381.
+			\item Tamara Kolda и Brett Bader. «Tensor Decompositions and Applications». В: SIAM Review 51 (авг. 2009), с. 455—500.
+		\end{itemize}
+			
+	\end{frame}
 	
 	
 \end{document}
