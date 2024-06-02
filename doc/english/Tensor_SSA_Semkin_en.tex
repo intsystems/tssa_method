@@ -172,13 +172,13 @@
 		Secondly, having a scalar $ \alpha $ it is also trivial that $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $. Then we finally derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
 	\end{proof}
 	
-	Returning to forth equality in (\ref{eq:decomp_method_ideal}), we can combine this lemma and the fact that $ \mathbf{H}_{x_k} $ is itself hankel to get a complete justification. This outputs in the correctness of series decomposition procedure for any chosen grouping of factors.
+	Returning to the forth equality in (\ref{eq:decomp_method_ideal}), we can combine this lemma and the fact that $ \mathbf{H}_{x_k} $ is itself hankel to get a complete justification. This outputs in the correctness of series decomposition procedure for any chosen grouping of factors.
 	
 	\subsection*{Optimal decomposition and its computational complexity}\label{sec:optimal_decomp}
 	
-	Несмотря на корректность имеющегося алгоритма, хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более "<ганкелевой">. Это соответствует сформулированному принципу о связи разложения матриц и сигналов, а также повышает интерпретируемость компонент. Опишем задачу формально и исследуем её.
+	Even though decomposition algorithm from the previous subsection is correct for any factors' grouping we might want to find the best one. This would mean every $ C_i $ to be as close to hankel matrix as possible. Having that the formulated decomposition concept would be fully accomplished and signal's components could be naturally extracted. Let's rewrite it as some optimization task.
 	
-	Рассмотрим первое равенство в (\ref{eq:decomp_method_ideal}), а также применим к нему оператор ганкелизации:
+	Consider the first equality from (\ref{eq:decomp_method_ideal}) and itself with hankel operator applied. Also recall that $ \mathbf{H}_{x_k} $ is hankel. We obtain:
 	
 	\begin{equation*}
 		\begin{cases*}
@@ -187,17 +187,19 @@
 		\end{cases*}
 	\end{equation*}
 	
-	Ещё раз напомним, что $ \mathbf{H}_{x_k} $ ганкелева по построению. Вычтем из первого втрое и обозначим $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $, что соответствует невязке между исходной матрицей и её ганкелизацией. Т.о. получим:
+	Subtract the second equation from the first and denote $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $. This can be sensed as residual between initial matrix and its hankelized version. So we have:
 	
 	\begin{equation}\label{eq:residuals_equation}
 		H_1 + \ldots + H_r = 0 \Leftrightarrow H_r = - \sum\limits_{j = 1}^{r - 1} H_j
 	\end{equation}
 	
-	Теперь группировка факторов и ганкелевость итоговых матриц $ C_i $ (см. предыдущий подраздел) становится равносильна следующему: $ \sum_{k \in \mathbb{I}_i} H_k = 0, \  \forall i \in 1, \ldots, s $. Т.е. матрицы невязок суммируются в ноль внутри каждой группы. Далее, несложно заметить, что если существует разложение на $ s $ групп, то к нему можно прийти, разделяя имеющиеся группы факторов на две последовательно. Поэтому остановимся на этой упрощённой задаче.
+	What we have done is reformulated condition on $ C_i $ to be hankel in terms of residual matrices summing into zero inside groups: $ \sum_{k \in \mathbb{I}_i} H_k = 0, \  \forall i \in 1, \ldots, s $.
 	
-	Из (\ref{eq:residuals_equation}) видно, что все матрицы невязок уже суммируются в $ 0 $, т.е. группу для $ H_r $ можно определить, сгруппировав оставшиеся невязки. Введём для каждой из них переменную-индикатор $ \beta_j \in \{0, 1\} $, показывающую, к какой из двух групп относится невязка. 
+	Now let's simplify our case by decreasing the number of desired components from $ s $ to two. If we worked out the easier problem we could consecutively dissect components into two more and have as much of them as we want.  
 	
-	Итак, ещё раз перечислим все условия. $ H_i $ в одной группе суммируются в $ 0 $; также считаем, что все они ненулевые (иначе мы уже имеем искомую группировку), т.е. в группе должно быть хотя бы две невязки. Т.о. задача поиска группировки свелась к следующей:
+	Next, (\ref{eq:residuals_equation}) shows all residual matrices already total in zero. Therefore we can discard, for example, $ H_r $ as group for it would be defined automatically if having groups for the rest factors. Let's introduce indicator-variables $ \beta_j \in \{0, 1\} $ showing in what of two groups factor $ j $ lies.
+	
+	Finally, we assume all $ H_i $ to be non-zero; otherwise we already have needed dissection. This last condition implies each group to have at least two residual matrices. So we are ready for the optimal decomposition problem statement:
 	
 	\begin{equation}
 		\begin{cases*}
@@ -207,7 +209,7 @@
 		\end{cases*}
 	\end{equation}
 	
-	Для придания задаче более знакомого вида, во-первых, векторизуем каждую $ H_i $, и соберём все эти векторы в одну матрицу $ \Lambda $, а также введём $ \boldsymbol{\beta} = (\beta_1 \ldots \beta_{r-1}) $. Вспомним, что на практике мы не ждём идеальной ситуации суммирования в $ 0 $ матриц невязок (ганкелевости $ C_i $, см. предыдущий подраздел), нам достаточно сделать сумму как можно более близкой к нулю. Это приводит нас к конечной формулировке:
+	To rewrite it in a more familiar way let's vectorize each $ H_i $ and put resulting vectors in a matrix $ \Lambda $. Furthermore, introduce $ \boldsymbol{\beta} = (\beta_1 \ldots \beta_{r-1}) $. Then, recall from previous subsection that it is highly unlikely for residual matrices to total in zero within all groups. The most we can is to make them as close to zero as possible. So restated problem:
 	
 	\begin{equation}\label{eq:decomp_search_final}
 		\begin{cases*}
@@ -217,64 +219,63 @@
 		\end{cases*}
 	\end{equation}
 	
-	Назовём решение этой системы \emph{оптимальной декомпозицией ряда}. Она представляет из себя задачу наименьших квадратов с целочисленными ограничениями (ILS), которая, как показано в \cite{van1981another}, является NP-сложной. Все проведённые рассуждения приведём в виде:
+	Let's declare solution of this task \emph{optimal series decomposition}. It is represented as Integer Least Squares problem which is proved to be NP-hard~\cite{van1981another}. In short, subsection's output is:
 	
 	\begin{Th}
-		Оптимальная декомпозиция ряда, в смысле поиска группировки факторов разложения траекторной матрицы ряда, является NP-сложной задачей.
+		Optimal series decomposition as special grouping of trajectory matrix's factors search is NP-hard.
 	\end{Th}
 	
-	Несмотря на полученный результат, существуют методы и эвристики для сведения ILS к эффективно вычислим задачам, см. \cite{Grafarend2022}.
+	In spite of the result, methods and heuristics exist to reduce ILS to computationally effective objectives~\cite{Grafarend2022}.
 	
+	\subsection*{Forecasting}\label{sec:tssa_forecast}
 	
-	\subsection*{Прогноз для набора рядов}\label{sec:tssa_forecast}
+	In our model prediction making comes down to restoration of delay vectors for every signal in a set. Because we have the shared basis among series $ \{\mathbf{a}_i\}_{i = 1}^r $ we can process them separately. 
 	
-	Получение предсказания нашей модели сводится к восстановлению компонент векторов задержек каждого входного ряда. Т.к. мы построили общий для всех сигналов базис $ \{\mathbf{a}_i\}_{i = 1}^r $, то каждый сигнал может обрабатываться независимо.
+	If $ \{\mathbf{a}_i\}_{i = 1}^r $ was orthornormal we could inherit SSA prediction technique~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. But we don't have this warranty so we are going to adopt it for our case.
 	
-	Если бы $ \{\mathbf{a}_i\}_{i = 1}^r $ был ортогональным, то мы бы могли применить технику прогнозирования SSA \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Мы не имеем такой гарантии, поэтому процедуру необходимо модифицировать.
-	
-	Рассмотрим входной ряд $ x(t) $ и построим для него прогноз на один шаг вперёд. Вектор задержки $ \delayV{N + 1} = (x(N - L) \ldots x(N + 1))^{\mathsf{T}} $, в котором последняя компонента неизвестна, лежит в пространстве $ \text{Lin}(\{\mathbf{a}_i\}) $. В терминах вводимой ранее матрицы $ A \in \mathbb{R}^{L \times r} $ полного ранга (см. раздел \hyperref[sec:tssa_method]{Взаимосвязь рядов и метод tSSA}) это записывается как:
+	Having input series $ x(t) $ we want to forecast it for one step further. Delay vector $ \delayV{N + 1} = (x(N - L) \ldots x(N + 1))^{\mathsf{T}} $, with the last component unknown, belongs to the $ \text{Lin}(\{\mathbf{a}_i\}) $. In terms of full-ranked matrix $ A \in \mathbb{R}^{L \times r} $ (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}) it can be written as:
 	
 	\begin{align}\label{eq:main_pred_for_A}
 		\delayV{N + 1} = A \boldsymbol{\lambda} &\Leftrightarrow \begin{cases}
 			\mathbf{x}_{kn} = A_{kn} \boldsymbol{\lambda}  \\
 			x(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} \boldsymbol{\lambda}
-		\end{cases}, \text{ где } \\
+		\end{cases}, \text{ where } \\
 		A &= \left( \dfrac{A_{kn}}{\mathbf{a}_{pr}^{\mathsf{T}}} \right) \nonumber \\
 		\delayV{N + 1} &= (\mathbf{x}_{kn} \  x(N + 1))^{\mathsf{T}} \nonumber
 	\end{align}
 	
-	Здесь $ \boldsymbol{\lambda} \in \mathbb{R}^r $; вектор задержки и матрица представлены в блочном виде, разделяющим известную часть сигнала (known) и его будущее значение (predicted). Для построения прогноза необходимо определить $ \boldsymbol{\lambda} $. 
+	Here variable $ \boldsymbol{\lambda} \in \mathbb{R}^r $. Delay vector and matrix are broken into two blocks associated with the \emph{known} and \emph{unknown} part of the series. To make prediction we need to find $ \boldsymbol{\lambda} $ so we focus on the first obtained equation.
 	
-	Матрица имеющейся СЛАУ $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ имеет ранг не менее $ r - 1 $, но мы предположим, что удаление одной строчки оставит ранг полным. Как показывает практика, это необременительное условие. Сама система, в силу предположения модели $ r \ll L $, является переопределённой. Значит её решение разумно искать только в смысле наименьших квадратов: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. В итоге прогноз модели даётся:
+	The matrix of this linear system $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ has a rank at least $ r - 1 $ by construction. But we assume elimination of one row in $ A $ will actually keep the rank full. As experiments show this is not burdensome. After that, we note that the linear system itself is overdetermined due to the model hypothesis $ r \ll L $. Therefore it is reasonable to get solution in a least squares sense: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. In the end, forecast is given by the formula:
 	
 	\begin{equation}\label{eq:tssa_pred}
 		x(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn}
 	\end{equation}
 	
-	Здесь $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T = \mathbf{d}^{\mathsf{T}} $ --- вектор-строка, и, вычислив её единожды, можно последовательно строить предсказания на произвольный горизонт вперёд.
+	Here $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T = \mathbf{d}^{\mathsf{T}} $ --- row vector which once computed can be reused to make prediction for arbitrary horizon ahead.
 	
-	Теперь перепишем (\ref{eq:tssa_pred}) в терминах $ x(t) $:
+	Now let's rewrite (\ref{eq:tssa_pred}) in terms of $ x(t) $:
 	
 	\begin{equation*}\label{eq:autoregr}
 		x(t) = \sum\limits_{i = 1}^{L - 1} d_i \cdot x(t - i)
 	\end{equation*}
 	
-	Это выражение приводит нас к окончательному выводу о характере прогноза:
+	This expression leads to the final result about the forecast behavior:
 	
-	\begin{Th}
-		Модель прогнозируемого методом tSSA ряда --- \textit{авторегрессионная} $ AR(L - 1) $. Поведение прогноза полностью определяется коэффициентами авторегрессии $ d_i $, найденными в (\ref{eq:tssa_pred}).
+	\begin{Th}		
+		The model of tSSA's forecast is \emph{autoregressive} $ AR(L - 1) $. It is fully characterized by coefficients $ d_i $ found in (\ref{eq:tssa_pred}).
 	\end{Th}
 	
-	\section{Вычислительный эксперимент}	
+	\section{Computational experiment}	
 	
-	\subsection*{Цели и постановка}
+	\subsection*{Goals and setting}
 	
-	В данном разделе мы рассмотрим применение метода tSSA для декомпозиции и прогноза нескольких многомерных временных рядов, а также сравним его с другими моделями, упомянутыми во введении: mSSA, VAR, RNN. Упомянем, что mSSA по теории и применению во многом схожа с нашим методом, с её помощью можно решать обе упомянутые задачи. Две другие модели способны только к предсказанию.
+	In the current section we will demonstrate application of our method for decomposition and forecast of multidimensional time series. We will also compare it with other models: mSSA, VAR, RNN. The latter two are only able for prediction. The mSSA has a lot in common with our approach and is valid for both tasks.
 	
-	Для измерения \textbf{качества декомпозиции} введём метрики:
+	To measure quality of the decomposition we need special metrics:
 	
 	\begin{Def}
-		\emph{Абсолютной ошибкой ганкелизации} матрицы M назовём 
+		\emph{Absolute hankel error} of matrix M is 
 		
 		\[
 		\text{AHE} = \lVert M - \text{Hankel}(M) \rVert_2
@@ -284,7 +285,7 @@
 	
 	\begin{Def}		
 		
-		\emph{Относительной ошибкой ганкелизации} матрицы M назовём 
+		\emph{Relative hankel error} of matrix M is 
 		
 		\[
 		\text{RHE} = \frac{\text{AHE}}{\lVert M \rVert_2} 
@@ -292,19 +293,19 @@
 		
 	\end{Def}
 	
-	AHE можно представлять как суммарное стандартное отклонение антидиагоналей матрицы. RHE её более интерпретируемая модификация, которая и будет использоваться далее. 
+	AHE can be imagined as a total standard deviation of matrix's anti-diagonals. RHE is its more convenient modification which will be used further.	
 	
-	Напомним, что разложение ряда на компоненты эквивалентно группировке факторов разложения траекторной матрицы сигнала, т.е. получению матриц $ C_i $ (см. раздел \hyperref[sec:decomposition]{Декомпозиция набора рядов}). Именно для них мы и будем рассчитывать RHE, а также среднее RHE по одному ряду --- $ \overline{\text{RHE}}_{ts} $, и среднее RHE всех рядов датасета --- $ \overline{\text{RHE}} $.
+	Now, recall that series decomposition on additive components is equivalent to trajectory matrix decomposition, viz. obtaining of matrices $ C_i $ (see \hyperref[sec:decomposition]{Time series decomposition}). The RHE will be calculated for them as well as mean RHE for every series in a set --- $ \overline{\text{RHE}}_{ts} $ and the mean among all series --- $ \overline{\text{RHE}} $. 
 	
-	Для измерения \textbf{качества прогноза} ряда будем использовать стандартные метрики: среднеквадратическую ошибку $ \text{MSE}_{ts} $ и среднюю абсолютную процентную ошибку $ \text{MAPE}_{ts} $, а также их усреднения по всему датасету c обозначениями $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $.
+	To measure forecast quality we will be using standard metrics: mean squared error $ \text{MSE}_{ts} $ and mean absolute percentage error $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
 	
-	В качестве сигналов будут рассмотрены два набора данных: потребление электроэнергии и её цена за единицу мощности (рис. \ref{fig:electr_data}); а также три ряда, характеризующие погоду г. Берлин в период с 1980 по 1990 год: средние за день температура, осадки и атмосферное давление (рис. \ref{fig:weather_data}). Мы предполагаем наличие связи рядов в каждом наборе (на основе экономических/физических причин), т.к. это важное условие применения нашего метода (см. \hyperref[sec:tssa_method]{Взаимосвязь рядов и метод tSSA}). Каждый ряд имеет длину $ \approx 3 \cdot 10^3 $, из которых $ 20\% $ --- отложенная выборка для оценки качества прогноза.
+	Two sets of data will be involved. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, three series describing weather conditions in Berlin from 1980 to 1990: temperature, precipitation and air pressure (fig. \ref{fig:weather_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}). Then, individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Electricity_Production}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Electricity_Price}
-		\caption{Многомерный ряд потребления электричества и его цены за единицу мощности}\label{fig:electr_data}
+		\caption{Time series for electricity consumption and its price}\label{fig:electr_data}
 	\end{figure}
 	
 	\begin{figure}[h]
@@ -312,14 +313,14 @@
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Temperature.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Precipitation.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Pressure.png}
-		\caption{Многомерный ряд физических величин: температуры, осадков и давления, измеренных на метеостанции г. Берлин}\label{fig:weather_data}
+		\caption{Time series for temperature, precipitation and air pressure from meteostation in Berlin.}\label{fig:weather_data}
 	\end{figure}
 	
-	Опишем нюансы применения метода tSSA. Во-первых, вычисление канонического ранга тензора --- NP-трудная задача \cite{HASTAD1990644}, поэтому каждый раз ранг разложения будет указываться явно. Во-вторых, используемый алгоритм CP-разложения --- ALS \cite{kolda_tensors}, имеет ошибку аппроксимации, из-за чего возникает неточность разложения траекторных матриц. Относительные величины этих невязок будут указаны ниже. В-третьих, для поиска декомпозиции рядов будет решаться задача ILS (\ref{eq:decomp_search_final}), в которой матрица имеет высокую строковую размерность. Для ускорения мы сократим её до нескольких сотен, что всё ещё будет много больше размерности искомого вектора параметров. Используемый солвер --- SCIP \cite{BolusaniEtal2024ZR}.
+	Let's describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that trajectory matrices' decomposition (\ref{eq:tSSA_decomp}) is not exact. This relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameter's vector. The used solver is SCIP~\cite{BolusaniEtal2024ZR}.
+
+	Finally, let's fix a value $ L $ common for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We set $ L = 500 $.
 	
-	Наконец, мы зафиксируем единый для всех моделей параметр, отвечающий за длину предуславливания методов на историю рядов, который обозначался за $ L $. Для tSSA и mSSA он был описан в начале раздела \ref{sec:problem_statement}; в RNN это можно считать длиной энкодера; в VAR это максимальная длина истории ряда, на которую производится авторегрессия. Везде ниже $ L = 500 $.		
-	
-	\subsection*{Результаты и обсуждение}
+	\subsection*{Results and discussion}
 	
 	Начнём с задачи прогнозирования. На рис. \ref{fig:mse_mape_electr} и \ref{fig:mse_mape_weather} отображена зависимость метрик качества прогноза tSSA в зависимости от ранга CP-разложения. Точка минимума и характер изменения MSE и MAPE совпадают. Наблюдается эффект переобучения при повышении значения ранга, особенно резкое ухудшение метрик у данных погоды. При этом ошибка CP-разложения монотонно убывает, см. рис. \ref{fig:cpd_errors}.
 	
