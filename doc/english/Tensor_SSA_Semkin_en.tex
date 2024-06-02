@@ -97,7 +97,7 @@
 	
 	It is called \emph{delay vector} in time $ t $ and denoted as $ \delayV{t} $. Their dimensionality $ L $ should satisfy $ L > 2 \cdot \dim(M) $. Function $ \phi(\cdot) $ should also meet some regularity conditions which are assumed to be fulfilled.
 	
-	So, with signal $ x(t) $ of length $ N $ we build $ N - L + 1 $ delay vectors. Corresponding embedding space $ \text{Lin}(\{\delayV{t}\}) $, so called $ x(t) $ \emph{subspace}, must be low dimensional, meaning $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Orthonormed basis here is a SVD's $ U $-component of \emph{trajectory matrix} $ \mathbf{H}_x $ which is build from delay vectors:
+	So, with signal $ x(t) $ of length $ N $ we build $ N - L + 1 $ delay vectors. Corresponding embedding space $ \text{Lin}(\{\delayV{t}\}) $, so called \emph{signal subspace}, must be low dimensional, meaning $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Orthonormed basis here is a SVD's $ U $-component of \emph{trajectory matrix} $ \mathbf{H}_x $ which is build from delay vectors:
 	
 	\[
 		\mathbf{H}_x = [ \delayV{1} \ldots  \delayV{N - L + 1}]
@@ -107,25 +107,27 @@
 	
 	Теперь обобщим данный подход на несколько временных рядов.
 	
+	Now let's generalize previous results for the multiple series.
+	
 	\begin{figure}[h]
 		\centering
 		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{../../figs/Trajectory_Tensor_1}}
 		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{../../figs/Trajectory_Tensor_2}}
 		
-		\caption{Два вида на траекторный тензор. Слева --- в виде набора траекторных матриц сигналов $ \{x_i(t)\}_{i=1}^m $. Справа --- в виде набора матриц задержки.}\label{pic:traj_tensor}
+		\caption{Two views on trajectory tensor. The left is in terms of signals' trajectory matrices $ \{x_i(t)\}_{i=1}^m $. The right is in terms of delay matrices.}\label{pic:traj_tensor}
 	\end{figure}
 	
-	В данном случае $ \boldsymbol{\phi}(\cdot) $ уже многомерное, а значит вместо вектора задержки одного сигнала необходимо рассматривать их набор для всех $ m $ сигналов в момент $ t $. Т.е. образами вложения будут служить \emph{матрицы задержки} $ ( \delayV{1_t} \ldots \delayV{m_t} ) := \delayM{t} $. А на смену траекторной матрице приходит \textit{траекторный тензор} $ \mathbf{T} $ набора сигналов. Он складывается из матриц задержки, выстроенных подряд по второму измерению тензора, рис. \ref{pic:traj_tensor} слева. Конструкция аналогичная построению $ \mathbf{H}_x $. Из неё следует важное свойство: $ \mathbf{T} $ можно рассматривать и как состыковку траекторных матриц $ \mathbf{H}_{x_i} $ вдоль третьего измерения, рис. \ref{pic:traj_tensor} справа.
+	In this case $ \boldsymbol{\phi}(\cdot) $ is multidimensional. So instead of the single delay vector we should consider their set for all $ m $ signals in time $ t $. That means the embedding image now contains so called \emph{delay matrices} $ ( \delayV{1_t} \ldots \delayV{m_t} ) := \delayM{t} $. Next, instead of trajectory matrix we should introduce \textit{trajectory tensor} $ \mathbf{T} $. It is constructed  by putting delay matrices along the second dimension of the tensor, fig. \ref{pic:traj_tensor} (left). This procedure is equivalent to the one for $ \mathbf{H}_x $. But our tensor has an important property: $ \mathbf{T} $ can also be built as an alignment of signals' trajectory matrices $ \mathbf{H}_{x_i} $ along the third dimension, fig. \ref{pic:traj_tensor} (right).
 	
-	Проводя рассуждения, аналогичные случаю одного сигнала, мы получаем \emph{собственное пространство набора рядов} в виде линейной оболочки их матриц задержек. Но нам необходимо построить его для каждого сигнала отдельно.
+	Then, reasoning analogues to the one signal case we obtain \emph{signals' set subspace} as a linear span of delay matrices. But we were supposed to built the subspace for each signal individually.
 	
-	Выше мы обещали дать определение взаимосвязи рядов в рамках нашей модели. 
+	It's time to give a definition for signals' interrelation in our model's scope.
 	
-	\begin{Def}
-		Мы называем набор временных рядов \emph{связанным}, если они имеют одинаковое для всех собственное пространство с единым базисом.
+	\begin{Def}		
+		We call a set of time series \emph{interconnected} if they all share the common subspace with the same basis.
 	\end{Def}
 	
-	Настало время построить эти пространство и базис. Заметим, что для этого достаточно разложить траекторные матрицы каждого сигнала по общему набору факторов. Применим \textit{CP-разложение} к траекторному тензору и рассмотрим его вид для каждого сечения по третьему измерению:
+	Now we are ready to find this shared elements for signals. Note that to do so we just need to decompose each signal's trajectory matrix through the same set of factors. Finally, let's apply CPD to our trajectory tensor and have a look at its slices by third dimension.
 	
 	\begin{equation}\label{eq:tSSA_decomp}
 		\mathbf{T} = \sum\limits_{i = 1}^{r} \mathbf{a}_i \otimes \mathbf{b}_i \otimes \mathbf{c}_i \Leftrightarrow \begin{cases}
@@ -136,43 +138,43 @@
 		\end{cases}
 	\end{equation}
 	
-	Проанализируем полученное. Разложение определяется каноническим тензорным рангом $ r $ и набором векторов, которые удобно упаковать в матрицы: $ A = [\mathbf{a}_1 \ldots \mathbf{a}_r]; B = [\mathbf{b}_1 \ldots \mathbf{b}_r]; C = [\mathbf{c}_1 \ldots \mathbf{c}_r] $. Строку $ k $ матрицы $ C $ мы обозначаем $ \boldsymbol{\sigma}_{x_k} $. Она имеет аналогичный набору сингулярных чисел смысл, однако они могут быть и отрицательными.
+	What have we got? CPD is defined by tensor rank $ r $ and a set of vectors which we can pack in matrices: $ A = [\mathbf{a}_1 \ldots \mathbf{a}_r]; B = [\mathbf{b}_1 \ldots \mathbf{b}_r]; C = [\mathbf{c}_1 \ldots \mathbf{c}_r] $. Row $ k $ of matrix $ C $ is denoted as $ \boldsymbol{\sigma}_{x_k} $. It has the sense of singular values but can be negative.
 	
-	Из определения CPD как разложения вида (\ref{eq:tSSA_decomp}) c минимальным $ r $ следует, что матрицы $ A, B, C $ имеют полный ранг. Общим собственным пространством сигналов является $ \text{Lin}(\{\mathbf{a}_i\}) $ с единым базисом $ \{\mathbf{a}_i\}_{i = 1}^r $, не обязательно ортогональным. В постановке задачи мы предполагали, что размерность вложения не должна быть большой, т.е. должно выполняться $ r \ll L $.
+	After, from CPD definition as a (\ref{eq:tSSA_decomp}) kind decomposition with minimal $ r $ we can derive that $ A, B, C $ are full-rank matrices. So, signals' shared subspace is  $ \text{Lin}(\{\mathbf{a}_i\}) $ with unified basis $ \{\mathbf{a}_i\}_{i = 1}^r $ which is not orthonormed in general. Then, back in the problem statement we assumed dimensionality of the embedding to be rather small. Therefore relation $ r \ll L $ should be true.
 	
-	Наконец заметим, что \emph{строки} матриц $ \mathbf{H}_{x_k} $ также являются векторами задержек, но размерности $ N - L + 1 $, и в их терминах общим пространством сигналов будет $ \text{Lin}(\{\mathbf{b}_i\}) $. Т.о. наш подход обладает согласованностью относительно выбора $ \delayV{k_t} $, чего нет у метода mSSA.
+	Lastly, let's note that \emph{rows} of $ \mathbf{H}_{x_k} $ are also delay vectors but have another dimension of $ N - L + 1 $. So the shared subspace for them would be $ \text{Lin}(\{\mathbf{b}_i\}) $. This result proves our approach to be consistent with choice of $ \delayV{k_t} $. As a remark, mSSA lacks such feature.
 	
-	В данном разложении связь рядов определяют $ \boldsymbol{\sigma}_{x_k} $ : если для сигналов они имеют нулевые элементы в непересекающихся позициях, то общее собственное пространство представится прямой суммой подпространств индивидуальных рядов. В случае же полной взаимосвязи все представления сигналов лежат в общем пространстве.
+	What to the signals' link, it is regulated by $ \boldsymbol{\sigma}_{x_k} $. For instance, if all the rows have zero elements in non-overlapping positions then our built subspace breaks down into a direct sum of individual signal's subspaces. It is total link absence case. The exact opposite situation is when $ \boldsymbol{\sigma}_{x_k} $ are non-zero for all series.
 	
-	\subsection*{Декомпозиция набора рядов}\label{sec:decomposition}
+	\subsection*{Time series decomposition}\label{sec:decomposition}
 	
-	Теперь мы можем представить каждый сигнал суммой компонент по следующему принципу: \emph{декомпозиция траекторной матрицы $ \mathbf{H}_{x_k} $ определяет декомпозицию временного ряда $ x_k(t) $}. Эта методика лежит в основе метода SSA. Т.к. разложение у каждой матрицы своё, то и сигналы можно обрабатывать независимо.
+	We can break series into several components using the conception: \emph{decomposition of trajectory matrix $ \mathbf{H}_{x_k} $ defines decomposition of related signal}. Its first part implies representation of $ \mathbf{H}_{x_k} $ as a sum of factors (\ref{eq:tSSA_decomp}). This technique comes from SSA. Because all matrices are similarly decomposed, we can focus on the task for a single series.
 	
-	В данном подходе основным является свойство \emph{ганкелевости} траекторных матриц --- равенства элементов антидиагоналей. Каждому временному ряду длины $ N $ взаимнооднозначно сопоставляется ганкелева матрица размера $ L \times (N - L + 1) $.
+	Besides, we should point out the main feature of trajectory matrices --- \emph{hankelness}. That simply means equal elements along each anti-diagonal. Every series of length $ N $ bijectionly corresponds to hankel matrix of size $ L \times (N - L + 1) $.
 	
-	Алгоритм декомпозиции следующий: предполагается, что факторы разложения $ \mathbf{H}_{x_k} $ можно сгруппировать таким образом, что, сложив их в каждой группе, мы получим ганкелевы матрицы $ C_1, \ldots, C_s $. Это бы в точности соответствовало представлению $ x_k(t) $ в виде суммы $ s $ сигналов. На практике такая ситуация почти нереализуема (см.~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}), поэтому все $ C_i $ дополнительно \emph{ганкелизируют} --- усредняют каждую антидиагональ. Обозначим это оператором $ \text{Hankel}(\cdot) $. 
+	Now, decomposition procedure is following: we assume factors of $ \mathbf{H}_{x_k} $ to be able to pack in $ s $ groups in a special way. That means if we sum all factors within each group the result matrices $ C_1, \ldots, C_s $ will be hankel. This situation would perfectly correspond to representation of $ x_k(t) $ as a sum of $ s $ signals. Unfortunately, it is almost infeasible even with trivial series \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}, so every $ C_i $ should be additionally \emph{hankelized}. This operation average each matrix's anti-diagonal so it becomes hankel. Let's denote the operator as $ \text{Hankel}(\cdot) $. 
 	
-	Т.о. описанную процедуру можно представить выражением:
+	The whole algorithm can be written as a chain of identical expressions:
 	
 	\begin{multline}\label{eq:decomp_method_ideal}
 		\underline{\mathbf{H}_{x_k}} \overset{1}{=} \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{2}{=} \sum\limits_{i \in \mathbb{I}_1} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} + \ldots + \sum\limits_{i \in \mathbb{I}_s} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{3}{=} \\ \overset{3}{=} C_1 + \ldots + C_s \overset{4}{=} \underline{\text{Hankel}(C_1) + \ldots + \text{Hankel}(C_s)}  \Leftrightarrow x_k(t) = c_1(t) + \ldots c_s(t)
 	\end{multline}
 	
-	Здесь $ \mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} $ --- выбранные группы индексов. Четвёртое равенство нуждается в обосновании, для этого докажем простое свойство оператора ганкелизации:
+	Here $ \mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} $ --- chosen groups of indices. Actually, the forth equality needs some extra validation. To make it, first consider hankel operator's property:
 	
 	\begin{Lem}
-		Оператор $ \text{Hankel}(\cdot) $ линейный.
+		$ \text{Hankel}(\cdot) $ operator is linear.
 	\end{Lem}
 	
-	\begin{proof}
-		Возьмём две матрицы $ A $ и $ B $ одного размера и рассмотрим их элементы с одной антидиагонали $ a_1, \ldots, a_n $ и $ b_1, \ldots, b_n $. Тогда соответствующая антидиагональ в $ \text{Hankel}(A + B) $ равна $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $, т.е. равна сумме антидиагоналей матриц $ \text{Hankel}(A) $ и $ \text{Hankel}(B) $.
+	\begin{proof}		
+		Having matrices $ A $ and $ B $ with the same size, let's look at their elements from one anti-diagonal $ a_1, \ldots, a_n $ and $ b_1, \ldots, b_n $. Then this anti-diagonal in $ \text{Hankel}(A + B) $ is written as $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $, resulting in a sum of  $ \text{Hankel}(A) $ and $ \text{Hankel}(B) $ anti-diagonals.
 		
-		Для произвольного скаляра $ \alpha $ также очевидно $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $, из чего следует $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
+		Secondly, having a scalar $ \alpha $ it is also trivial that $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $. Then we finally derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
 	\end{proof}
 	
-	Теперь учитывая, что $ \mathbf{H}_{x_k} $ --- ганкелева по построению, мы полностью обосновали тождественность переходов в (\ref{eq:decomp_method_ideal}) и корректность процедуры декомпозиции временного ряда для любой выбранной группировки.
+	Returning to forth equality in (\ref{eq:decomp_method_ideal}), we can combine this lemma and the fact that $ \mathbf{H}_{x_k} $ is itself hankel to get a complete justification. This outputs in the correctness of series decomposition procedure for any chosen grouping of factors.
 	
-	\subsection*{Оптимальная декомпозиция и её сложность}\label{sec:optimal_decomp}
+	\subsection*{Optimal decomposition and its computational complexity}\label{sec:optimal_decomp}
 	
 	Несмотря на корректность имеющегося алгоритма, хочется группировать факторы так, что каждая матрица $ C_i $ была как можно более "<ганкелевой">. Это соответствует сформулированному принципу о связи разложения матриц и сигналов, а также повышает интерпретируемость компонент. Опишем задачу формально и исследуем её.
 	
@@ -325,14 +327,14 @@
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MSE_rank.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MAPE_rank.png}
-		\caption{Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг. Данные электроэнергии.}\label{fig:mse_mape_electr}
+		\caption{Данные электроэнергии. Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг.}\label{fig:mse_mape_electr}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/MSE_rank.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/MAPE_rank.png}
-		\caption{Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг. Данные погодных условий.}\label{fig:mse_mape_weather}
+		\caption{Данные погодных условий. Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг.}\label{fig:mse_mape_weather}
 	\end{figure}
 	
 	\begin{figure}[h]
@@ -345,21 +347,6 @@
 	Графики наилучшего прогноза tSSA приведены на рис. \ref{fig:tssa_electr_pred} и \ref{fig:tssa_weather_pred}, где наглядно видны различия метода с малым и большим рангом. В первом случае авторегрессионная модель прогноза большего порядка (см. теорему раздела \hyperref[sec:tssa_forecast]{Прогноз для набора рядов}), что позволяет точно аппроксимировать ряд. В случае же погоды большой порядок приводил к нестабильности и неограниченному росту, но при уменьшении степеней свободы возможно аппроксимировать сигналы только в среднем.
 	
 	Итоговые метрики качества прогноза всех моделей --- в табл. \ref{tab:pred_res_electr} и \ref{tab:pred_res_weather}. Наш метод показал наилучшие результаты, хотя mSSA был близок по точности. Метод VAR оказался нестабилен на выбранном горизонте прогнозирования, а RNN обучался в константную функцию.
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
-		\caption{Предсказание данных электроэнергии методом tSSA. CPD-ранг $ = 30 $}\label{fig:tssa_electr_pred}
-	\end{figure}
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
-		\caption{Предсказание данных погоды методом tSSA. CPD-ранг $ = 5 $}\label{fig:tssa_weather_pred}
-	\end{figure}
 	
 	\def\arraystretch{1.1}
 	\begin{table}[h]
@@ -399,11 +386,53 @@
 	
 	На рис. \ref{fig:electr_decomp_tssa} и \ref{fig:weather_decomp_tssa} представлены результаты наилучшей найденной декомпозиции рядов на две компоненты методом tSSA. В силу вычислительной сложности задачи ILS, разложение на б$\acute{\text{о}}$льшее количество компонент не производится. Из графиков видно, как сильно общий базис сигналов влияет на их декомпозицию: для генерации электроэнергии и её цены компоненты получились почти идентичными, с точностью до смещения и масштаба. Аналогичная ситуация для температуры и осадков в данных погоды, а для атмосферного давления разложение получилось другим. Далее, на рис. \ref{fig:weather_decomp_tssa} метод выделил для каждого сигнала по две периодические составляющие: одна из них большой амплитуды, другая много меньшей. Небольшой шум остался в каждой компоненте. На рис. \ref{fig:electr_decomp_tssa} метод выделил по два высокочастотных колебания разной амплитуды и смещения.
 	
-	Для сравнения на рис. \ref{fig:electr_decomp_mssa} и \ref{fig:weather_decomp_mssa} приведены результаты декомпозиции методом mSSA на пять компонент. Для их получения не было необходимости в решении ILS или настраивания CP-ранка, но они подбиралась вручную на основе близости сингулярных чисел некоторой матрицы, см. \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Тем не менее компоненты получились более интерпретируемыми и подробными: метод выделил несколько трендов и гармоник. Также, как видно из табл. \ref{tab:decomp_electr_results} и \ref{tab:decomp_weather_results}, mSSA немного выиграл по точности. Т.о. вычислительная сложность декомпозиции tSSA является главной проблемой метода и требует разработки собственных эвристик, которые, к слову, у mSSA уже имеются \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.		
+	Для сравнения на рис. \ref{fig:electr_decomp_mssa} и \ref{fig:weather_decomp_mssa} приведены результаты декомпозиции методом mSSA на пять компонент. Для их получения не было необходимости в решении ILS или настраивания CP-ранка, но они подбиралась вручную на основе близости сингулярных чисел некоторой матрицы, см. \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Тем не менее компоненты получились более интерпретируемыми и подробными: метод выделил несколько трендов и гармоник. Также, как видно из табл. \ref{tab:decomp_electr_results} и \ref{tab:decomp_weather_results}, mSSA немного выиграл по точности. Т.о. вычислительная сложность декомпозиции tSSA является главной проблемой метода и требует разработки собственных эвристик, которые, к слову, у mSSA уже имеются \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.	
+	
+	\def\arraystretch{1.2}
+	\begin{table}[h!]
+		\centering
+		\caption{Метрики моделей на декомпозиции данных электроэнергии}\label{tab:decomp_electr_results}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			& tSSA  & mSSA           \\ \hline
+			$ \overline{\text{RHE}}_{\text{Producution}} $  & 0.507 & 0.308          \\ \hline
+			$ \overline{\text{RHE}}_{\text{Price}} $      & 0.511 & 0.31           \\ \hline
+			$ \overline{\text{RHE}} $             & 0.509 & \textbf{0.309} \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\def\arraystretch{1.2}
+	\begin{table}[h!]
+		\centering
+		\caption{Метрики моделей на декомпозиции данных погоды}\label{tab:decomp_weather_results}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			& tSSA  & mSSA           \\ \hline
+			$ \overline{\text{RHE}}_{\text{Temp}} $   & 0.512 & 0.467          \\ \hline
+			$ \overline{\text{RHE}}_{\text{Prec}} $ & 0.508 & 0.538          \\ \hline
+			$ \overline{\text{RHE}}_{\text{Pres}} $   & 0.542 & 0.502          \\ \hline
+			$ \overline{\text{RHE}} $         & 0.521 & \textbf{0.502} \\ \hline
+		\end{tabular}
+	\end{table}	
 	
 	\section{Заключение}
 	
 	Тензорный метод tSSA был разработан для прогноза и декомпозиции набора временных рядов, обработка которых требует учёта фактора взаимосвязанности. Его главное достоинство --- проста в использовании: имеется всего два настраиваемых параметра, для которых не требуется изощрённых процедур обучения. Между тем, теория метода опирается на весьма общую модель динамических систем и предъявляет к данным лишь возможность маломерного представления. При применении на реальных датасетах удалось установить справедливость теоретических требований алгоритма, а также показать качество выше нейросетевых и статистических подходов. Главным вызовом для tSSA является результат о NP-сложности поиска оптимальной декомпозиции рядов. Нахождение способов решения этой проблемы или поиск другого пути для построения разложения --- основные направления дальнейшего развития метода.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+		\caption{Предсказание данных электроэнергии методом tSSA. CPD-ранг $ = 30 $}\label{fig:tssa_electr_pred}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
+		\caption{Предсказание данных погоды методом tSSA. CPD-ранг $ = 5 $}\label{fig:tssa_weather_pred}
+	\end{figure}
 	
 	\begin{figure}[h!]
 		\centering
@@ -442,33 +471,6 @@
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
 		\caption{Разложение рядов на компоненты методом mSSA. Данные погоды.}\label{fig:weather_decomp_mssa}
 	\end{figure}
-	
-	\def\arraystretch{1.2}
-	\begin{table}[h!]
-		\centering
-		\caption{Метрики моделей на декомпозиции данных электроэнергии}\label{tab:decomp_electr_results}
-		\begin{tabular}{|c|c|c|}
-			\hline
-			& tSSA  & mSSA           \\ \hline
-			$ \overline{\text{RHE}}_{\text{Producution}} $  & 0.507 & 0.308          \\ \hline
-			$ \overline{\text{RHE}}_{\text{Price}} $      & 0.511 & 0.31           \\ \hline
-			$ \overline{\text{RHE}} $             & 0.509 & \textbf{0.309} \\ \hline
-		\end{tabular}
-	\end{table}
-	
-	\def\arraystretch{1.2}
-	\begin{table}[h!]
-		\centering
-		\caption{Метрики моделей на декомпозиции данных погоды}\label{tab:decomp_weather_results}
-		\begin{tabular}{|c|c|c|}
-			\hline
-			& tSSA  & mSSA           \\ \hline
-			$ \overline{\text{RHE}}_{\text{Temp}} $   & 0.512 & 0.467          \\ \hline
-			$ \overline{\text{RHE}}_{\text{Prec}} $ & 0.508 & 0.538          \\ \hline
-			$ \overline{\text{RHE}}_{\text{Pres}} $   & 0.542 & 0.502          \\ \hline
-			$ \overline{\text{RHE}} $         & 0.521 & \textbf{0.502} \\ \hline
-		\end{tabular}
-	\end{table}
 		
 		\clearpage
 		\printbibliography
