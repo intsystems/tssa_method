@@ -30,7 +30,7 @@
 	
 	\begin{abstract}
 		
-		Processing of multidimensional time series is associated with additional task of modeling interconnections between signals. Its ignorance may cause incorrectness of any method's outcomes. On the other hand, taking this dependencies into account makes models larger and less interpretable as well as series analysis more narrow. A non-parametric method based on tensor data representation and SSA approach is proposed in the paper. Then, series decomposition technique and forecast type and formula were derived. Finally, elaborated theory was applied to electricity consumption and weather data. Obtained results were compared with mSSA, VAR, RNN models.
+		Processing of multidimensional time series is associated with additional task of determining interconnections between signals. Its ignorance may cause incorrectness of any method's outcomes. On the other hand, taking this dependencies into account makes models larger and less interpretable as well as series analysis' more narrow. A non-parametric method based on tensor data representation and SSA approach is proposed in the paper. Series decomposition technique and explicit forecast formula were also derived. Finally, elaborated theory was applied to electricity consumption and weather data. Obtained results were compared with mSSA, VAR, RNN models.
 		
 	\end{abstract}
 	
@@ -38,25 +38,25 @@
 	
 	\section{Introduction}\label{Intro}
 	
-	The main object of the paper is multidimensional time series --- a set of observed signals $ \{x_i(t)\}_{i=1}^m $ where $ t \in 1 \ldots N $. %By series decomposition we mean additive expansion of each signals into several components.
+	The main object of the paper is multidimensional time series --- a set of two or more of them $ \{x_i(t)\}_{i=1}^m $ where $ t \in 1 \ldots N $. %By series decomposition we mean additive expansion of each signals into several components.
 	
-	Decomposition~\cite{enders2010applied, x11, cleveland90} and forecast~\cite{3b1355aedd1041f1853e609a410576f3, enders2010applied, Box_Jenkins_methodology} methods for sole signal can not be directly transferred to set of signals if their behavior is interconnected. For instance, let's take predator-prey model~\cite{Volterra:1928}. The size of one population is dependent on another's and vice-versa. We are further assuming this connection to exist and will give formal definitions in the scope of particular models. 
+	Decomposition~\cite{enders2010applied, x11, cleveland90} and forecast~\cite{3b1355aedd1041f1853e609a410576f3, enders2010applied, Box_Jenkins_methodology} methods for sole signal can not be directly transferred to the set of signals if their behavior is interconnected. For instance, let's take predator-prey model~\cite{Volterra:1928}. The size of one population is dependent on another's and vice-versa. Throughout the whole paper we assume this connection to exist and will give formal definitions in the scope of particular models. 
 	
-	First, RNN model~\cite{neco, TEALAB2018334} links series with each other and their past values through composition of many nonlinear transformations. This information is encapsulated in hidden vector at each step. With that, one is able to forecast future values.
+	First, RNN model~\cite{neco, TEALAB2018334} links series with each other and their past values through composition of many nonlinear transformations. This information is encapsulated in the hidden vector at each step. With that, one is able to forecast future values.
 	
-	Second, vector autoregression (VAR)~\cite{VAR_model1, doi:10.1080/01621459.1962.10480664} is a linear stochastic model for multidimensional signals. Denoting vector $ \mathbf{x}_t = (x_1(t) \ldots x_m(t))^{\mathsf{T}} $ as a series realizations at time $ t $, the further dynamics is following:
+	Second, vector autoregression (VAR)~\cite{VAR_model1, doi:10.1080/01621459.1962.10480664} is a linear stochastic model for multidimensional signals. Denoting vector $ \mathbf{x}_t = (x_1(t) \ldots x_m(t))^{\mathsf{T}} $ as a series realizations at time $ t $, their further dynamics is the following:
 	
 	\begin{equation*}
 		\mathbf{x}_t = \boldsymbol{\mu} + \sum\limits_{i = 1}^p A_i \mathbf{x}_{t - i} + \mathbf{u}_t
 	\end{equation*}
 	
-	Here  $ \boldsymbol{\mu} $ --- some constant vector, $ A_i $ are matrices $ m \times m $, $ \mathbf{u}_t $ is a random vector (e.g. white noise $ \text{WN}(t) $). Signal's connection is defined by $ A_i $ transformations, so again each series is dependent on each other and the whole past \textit{linearly}.
+	Here  $ \boldsymbol{\mu} $ --- some constant vector, $ A_i $ are matrices $ m \times m $, $ \mathbf{u}_t $ is a random vector (e.g. white noise $ \text{WN}(t) $). Signal's connection is defined by $ A_i $ transformations, so each series is dependent on each other and the past \textit{linearly}.
 	
-	Revised solutions allow to make predictions, but have quite a number of hyperparameters to be tuned. They also require exhaustive learning procedures. Furthermore, their structure does not contain explicit way of making series decomposition.
+	Mentioned solutions allow to make predictions, but have quite a number of hyperparameters to be tuned. They also require exhaustive learning procedures. Furthermore, their structure does not contain explicit way of making series' decomposition.
 	
-	To tackle listed issues, we developed a new method called tSSA which has only two adjustable variables. Computing tensor Canonical polyadic decomposition (CPD) is the only requirement for forecast and decomposition. Next, the approach is an extension of SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for multidimensional time series. Due to that, its theory will be based on dynamical systems subtopic --- \textit{signal subspace}~\cite{1572261550523548160}. The main idea here is to build a phase representation of the observed signals (fig. \ref{pic:phase_traj}).
+	To tackle listed issues, we have developed a new method called tSSA which has only two adjustable variables. Computing tensor \emph{canonical polyadic decomposition} (CPD) is the only requirement for the forecast and decomposition. Next, this approach is an extension of SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for multidimensional time series. Due to that, its theory will be based on dynamical systems subtopic --- \textit{signal subspace}~\cite{1572261550523548160}. The main idea here is to build a phase representation of observed signals (fig. \ref{pic:phase_traj}).
 	
-	In the end, we should mention another SSA modification --- mSSA~\cite{mSSA_overview}. In contrast, it operates with data only in a way of matrices and matrix decomposition. Nonetheless, both methods share same ideas in forecast and decomposition techniques.
+	Besides, we should mention another SSA modification --- mSSA~\cite{mSSA_overview}. In contrast, it operates with data only in a way of matrices and matrix decomposition. Nonetheless, both methods share same ideas in forecast and decomposition techniques.
 	
 	\begin{figure}[h]
 		\centering
@@ -64,18 +64,18 @@
 		\caption{Time series's phase trajectory visualization }\label{pic:phase_traj}
 	\end{figure}
 	
-	The rest of the paper covers the theory and application of our method on the real data. Firstly, the mathematical model will be introduced and basis search in the signal space problem will be stated and resolved. These results will enable us to propose a way of decomposing the signals and make a forecast. Simultaneously, features of obtained solutions will be examined and result in two theorems. Finally, tSSA and mentioned methods will be applied on two datasets: electricity consumption and meteorology observations. We will obtain signal's predictions and additive decompositions. For the latter a special metric will be formulated. All results will be backed with figures and discussion.
+	The rest of the paper covers the theory and application of our method on the real data. Firstly, the mathematical model will be introduced and problem of basis search in the signal space will be stated and resolved. These results will enable us to propose a way of decomposing the signals and make a forecast. Simultaneously, features of obtained solutions will be examined and two associated theorems will be formulated. Finally, tSSA and mentioned methods will be applied on two datasets: electricity consumption and meteorology observations. We will obtain their predictions and additive decompositions. For the latter a special metric will be introduced. In addition, all results will be backed with figures and discussion.
 	
 	\section{Problem statement}\label{sec:problem_statement}
 	
-	Let us have observed multidimensional time series $ \{x_i(t)\}_{i=1}^m $ generated by some \emph{dynamical system} $ f $. By that we mean a law of coordinates $ \mathbf{y} \in X $ evolution in discrete time:
+	Let us have a set of time series $ \{x_i(t)\}_{i=1}^m $ generated by \emph{dynamical system} $ f $. By that we mean a law of coordinates $ \mathbf{y} \in X $ evolution in discrete time:
 	
 	\begin{gather*}
 		\mathbf{y}(t + 1) = f(\mathbf{y}(t)), \ t \in \mathbb{N} \\
 		\mathbf{y}(0) = \mathbf{y}_0
 	\end{gather*}
 	
-	Here $ X $ is generally a high dimensional smooth manifold. Then, each trajectory of the system spawns our signals through unknown mapping $ \boldsymbol{\phi}: X \to \mathbb{R}^m $:
+	Generally, $ X $ is a high dimensional smooth manifold. Then, each trajectory of the system spawns our signals through unknown mapping $ \boldsymbol{\phi}: X \to \mathbb{R}^m $:
 	
 	\begin{equation*}
 		\boldsymbol{\phi}(\mathbf{y}(t)) = \mathbf{x}_t \Leftrightarrow \begin{cases}
@@ -85,27 +85,25 @@
 		\end{cases}
 	\end{equation*}
 	
-	After that, it is hypothesized that trajectories $ \mathbf{y}(t) $ actually lie in a smaller dimension manifold $ M \subset X $. So now we should find an embedding of $ M $ into $ \mathbb{R}^{L} $ for some $ L $ and discover a basis in the image of the embedding. Having done that, we will obtain characterization of the initial system in terms of the standard linear space. The same will be equally applied to all $ x_i(t) $.
+	After that, it is hypothesized that trajectories $ \mathbf{y}(t) $ actually belong to a smaller dimension manifold $ M \subset X $. So now we should find an embedding of $ M $ into $ \mathbb{R}^{L} $ for some $ L $ and discover a basis in the image of the embedding. Having done that, we will obtain characterization of the initial system in terms of the standard linear space. The same will be equally applied to all $ x_i(t) $.
 	
 	\subsection*{One signal case}
 	
-	Our future approach roots from SSA method and Takens's theorem~\cite{citeulike:2735031}. Let's describe it in short. The theorem provides a solution for the stated problem in case of single series: any point $ \mathbf{y}(t) \in M $ we associate with the following vector:
+	Our future approach roots from SSA method and Takens's theorem~\cite{citeulike:2735031}. Let's describe it in short. The theorem provides a solution for the stated problem in single series case: we associate any point $ \mathbf{y}(t) \in M $ with the following vector:
 	
 	\[
 	( \, \boldsymbol{\phi} \circ f^{t - L + 1}(\mathbf{y}(t)), \ldots , \boldsymbol{\phi} \circ f(\mathbf{y}(t)), \boldsymbol{\phi} \circ \mathbf{y}(t) \,)^{\mathsf{T}} = (x(t - L + 1), \ldots , x(t-1), x(t))^{\mathsf{T}}
 	\] 
 	
-	It is called \emph{delay vector} in time $ t $ and denoted as $ \delayV{t} $. Their dimensionality $ L $ should satisfy $ L > 2 \cdot \dim(M) $. Function $ \phi(\cdot) $ should also meet some regularity conditions which are assumed to be fulfilled.
+	It is called \emph{delay vector} at time $ t $ and is denoted as $ \delayV{t} $. Their dimension $ L $ should satisfy $ L > 2 \cdot \dim(M) $. Function $ \phi(\cdot) $ should also meet some regularity conditions which are considered to be fulfilled.
 	
-	So, with signal $ x(t) $ of length $ N $ we build $ N - L + 1 $ delay vectors. Corresponding embedding space $ \text{Lin}(\{\delayV{t}\}) $, so called \emph{signal subspace}, must be low dimensional, meaning $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Orthonormed basis here is a SVD's $ U $-component of \emph{trajectory matrix} $ \mathbf{H}_x $ which is build from delay vectors:
+	So, with signal $ x(t) $ of length $ N $ we build $ N - L + 1 $ delay vectors. Now we can get what we wanted. Corresponding embedding space is $ \text{Lin}(\{\delayV{t}\}) $ (so called \emph{signal subspace}) and must be low dimensional, meaning $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Orthonormed basis here is a SVD's $ U $-component of \emph{trajectory matrix} $ \mathbf{H}_x $ which is build from delay vectors:
 	
 	\[
 		\mathbf{H}_x = [ \delayV{1} \ldots  \delayV{N - L + 1}]
 	\]
 	
 	\subsection*{Series interconnection and tSSA method}\label{sec:tssa_method}
-	
-	Теперь обобщим данный подход на несколько временных рядов.
 	
 	Now let's generalize previous results for the multiple series.
 	
@@ -117,17 +115,17 @@
 		\caption{Two views on trajectory tensor. The left is in terms of signals' trajectory matrices $ \{x_i(t)\}_{i=1}^m $. The right is in terms of delay matrices.}\label{pic:traj_tensor}
 	\end{figure}
 	
-	In this case $ \boldsymbol{\phi}(\cdot) $ is multidimensional. So instead of the single delay vector we should consider their set for all $ m $ signals in time $ t $. That means the embedding image now contains so called \emph{delay matrices} $ ( \delayV{1_t} \ldots \delayV{m_t} ) := \delayM{t} $. Next, instead of trajectory matrix we should introduce \textit{trajectory tensor} $ \mathbf{T} $. It is constructed  by putting delay matrices along the second dimension of the tensor, fig. \ref{pic:traj_tensor} (left). This procedure is equivalent to the one for $ \mathbf{H}_x $. But our tensor has an important property: $ \mathbf{T} $ can also be built as an alignment of signals' trajectory matrices $ \mathbf{H}_{x_i} $ along the third dimension, fig. \ref{pic:traj_tensor} (right).
+	In this case $ \boldsymbol{\phi}(\cdot) $ is multidimensional. So instead of the single delay vector we should consider their set for all $ m $ signals in time $ t $. That means the embedding image now contains so called \emph{delay matrices} $ ( \delayV{1_t} \ldots \delayV{m_t} ) := \delayM{t} $. Next, instead of trajectory matrix we should introduce \textit{trajectory tensor} $ \mathbf{T} $. It is constructed  by putting delay matrices along the second dimension of the tensor, fig. \ref{pic:traj_tensor} left. This procedure is equivalent to the one for $ \mathbf{H}_x $. But the tensor has an important property: $ \mathbf{T} $ can also be built as an alignment of signals trajectory matrices $ \mathbf{H}_{x_i} $ along the third dimension, fig. \ref{pic:traj_tensor} right.
 	
 	Then, reasoning analogues to the one signal case we obtain \emph{signals' set subspace} as a linear span of delay matrices. But we were supposed to built the subspace for each signal individually.
 	
-	It's time to give a definition for signals' interrelation in our model's scope.
+	Before doing so, it's time to give a definition for signals interrelation in our model's scope.
 	
 	\begin{Def}		
 		We call a set of time series \emph{interconnected} if they all share the common subspace with the same basis.
 	\end{Def}
 	
-	Now we are ready to find this shared elements for signals. Note that to do so we just need to decompose each signal's trajectory matrix through the same set of factors. Finally, let's apply CPD to our trajectory tensor and have a look at its slices by third dimension.
+	Now we are ready to find this shared elements for signals. Actually, we just need to decompose each signal's trajectory matrix through the same set of factors. Let's apply CPD to our trajectory tensor and have a look at its slices at third dimension.
 	
 	\begin{equation}\label{eq:tSSA_decomp}
 		\mathbf{T} = \sum\limits_{i = 1}^{r} \mathbf{a}_i \otimes \mathbf{b}_i \otimes \mathbf{c}_i \Leftrightarrow \begin{cases}
@@ -138,23 +136,23 @@
 		\end{cases}
 	\end{equation}
 	
-	What have we got? CPD is defined by tensor rank $ r $ and a set of vectors which we can pack in matrices: $ A = [\mathbf{a}_1 \ldots \mathbf{a}_r]; B = [\mathbf{b}_1 \ldots \mathbf{b}_r]; C = [\mathbf{c}_1 \ldots \mathbf{c}_r] $. Row $ k $ of matrix $ C $ is denoted as $ \boldsymbol{\sigma}_{x_k} $. It has the sense of singular values but can be negative.
+	To start, CPD is defined by tensor rank $ r $ and a set of vectors which we can pack in matrices: $ A = [\mathbf{a}_1 \ldots \mathbf{a}_r]; B = [\mathbf{b}_1 \ldots \mathbf{b}_r]; C = [\mathbf{c}_1 \ldots \mathbf{c}_r] $. Row $ k $ of matrix $ C $ is denoted as $ \boldsymbol{\sigma}_{x_k} $. It has the sense of singular values but may contain negative numbers. After, from CPD definition as a (\ref{eq:tSSA_decomp}) kind of decomposition with minimal $ r $ we can derive that $ A, B, C $ are full-rank matrices.
 	
-	After, from CPD definition as a (\ref{eq:tSSA_decomp}) kind decomposition with minimal $ r $ we can derive that $ A, B, C $ are full-rank matrices. So, signals' shared subspace is  $ \text{Lin}(\{\mathbf{a}_i\}) $ with unified basis $ \{\mathbf{a}_i\}_{i = 1}^r $ which is not orthonormed in general. Then, back in the problem statement we assumed dimensionality of the embedding to be rather small. Therefore relation $ r \ll L $ should be true.
+	Most importantly, we have obtained signals' shared subspace $ \text{Lin}(\{\mathbf{a}_i\}) $ with unified basis $ \{\mathbf{a}_i\}_{i = 1}^r $. Now it is not orthonormed in general. Then, back in the problem statement we assumed dimensionality of the embedding to be rather small. Therefore relation $ r \ll L $ should be true.
 	
-	Lastly, let's note that \emph{rows} of $ \mathbf{H}_{x_k} $ are also delay vectors but have another dimension of $ N - L + 1 $. So the shared subspace for them would be $ \text{Lin}(\{\mathbf{b}_i\}) $. This result proves our approach to be consistent with choice of $ \delayV{k_t} $. As a remark, mSSA lacks such feature.
+	Lastly, let's note that \emph{rows} of $ \mathbf{H}_{x_k} $ are also delay vectors but have another dimension $ N - L + 1 $. So the shared subspace for them would be $ \text{Lin}(\{\mathbf{b}_i\}) $. This result proves our approach to be consistent with choice of $ \delayV{k_t} $. As a remark, mSSA lacks such feature.
 	
-	What to the signals' link, it is regulated by $ \boldsymbol{\sigma}_{x_k} $. For instance, if all the rows have zero elements in non-overlapping positions then our built subspace breaks down into a direct sum of individual signal's subspaces. It is total link absence case. The exact opposite situation is when $ \boldsymbol{\sigma}_{x_k} $ are non-zero for all series.
+	What to the signals' linkage, it is regulated by $ \boldsymbol{\sigma}_{x_k} $. For instance, if all of them have zero elements in non-overlapping positions then our built subspace breaks down into a direct sum of individual signal's subspaces. It is a total linkage absence case. The exact opposite situation is when $ \boldsymbol{\sigma}_{x_k} $ are non-zero for all signals.
 	
 	\subsection*{Time series decomposition}\label{sec:decomposition}
 	
-	We can break series into several components using the conception: \emph{decomposition of trajectory matrix $ \mathbf{H}_{x_k} $ defines decomposition of related signal}. Its first part implies representation of $ \mathbf{H}_{x_k} $ as a sum of factors (\ref{eq:tSSA_decomp}). This technique comes from SSA. Because all matrices are similarly decomposed, we can focus on the task for a single series.
+	We can break series into several components using following conception: \emph{decomposition of trajectory matrix $ \mathbf{H}_{x_k} $ defines decomposition of related signal}. Its first part implies representation of $ \mathbf{H}_{x_k} $ as a sum of factors (\ref{eq:tSSA_decomp}). This technique comes from SSA. Because all matrices are similarly decomposed, we can focus on the task for a single series.
 	
-	Besides, we should point out the main feature of trajectory matrices --- \emph{hankelness}. That simply means equal elements along each anti-diagonal. Every series of length $ N $ bijectionly corresponds to hankel matrix of size $ L \times (N - L + 1) $.
+	Before diving into, we should point out the main feature of trajectory matrices --- \emph{hankelness}. That simply means equal elements along each anti-diagonal. So it is trivial that every series of length $ N $ bijectionly corresponds to hankel matrix of size $ L \times (N - L + 1) $.
 	
-	Now, decomposition procedure is following: we assume factors of $ \mathbf{H}_{x_k} $ to be able to pack in $ s $ groups in a special way. That means if we sum all factors within each group the result matrices $ C_1, \ldots, C_s $ will be hankel. This situation would perfectly correspond to representation of $ x_k(t) $ as a sum of $ s $ signals. Unfortunately, it is almost infeasible even with trivial series \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}, so every $ C_i $ should be additionally \emph{hankelized}. This operation average each matrix's anti-diagonal so it becomes hankel. Let's denote the operator as $ \text{Hankel}(\cdot) $. 
+	Now, decomposition procedure is the following: we assume factors of $ \mathbf{H}_{x_k} $ to be able to pack in $ s $ groups in a special way. That means if we sum all factors within each group the result matrices $ C_1, \ldots, C_s $ will be hankel. This situation would perfectly correspond to representation of $ x_k(t) $ as a sum of $ s $ signals. Unfortunately, it is almost infeasible even with trivial series \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}, so every $ C_i $ should be additionally \emph{hankelized}. This operation averages each matrix's anti-diagonals so it becomes hankel. Let's denote the operator as $ \text{Hankel}(\cdot) $. 
 	
-	The whole algorithm can be written as a chain of identical expressions:
+	The whole algorithm can be written as a chain of identical transformations:
 	
 	\begin{multline}\label{eq:decomp_method_ideal}
 		\underline{\mathbf{H}_{x_k}} \overset{1}{=} \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{2}{=} \sum\limits_{i \in \mathbb{I}_1} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} + \ldots + \sum\limits_{i \in \mathbb{I}_s} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{3}{=} \\ \overset{3}{=} C_1 + \ldots + C_s \overset{4}{=} \underline{\text{Hankel}(C_1) + \ldots + \text{Hankel}(C_s)}  \Leftrightarrow x_k(t) = c_1(t) + \ldots c_s(t)
@@ -167,16 +165,16 @@
 	\end{Lem}
 	
 	\begin{proof}		
-		Having matrices $ A $ and $ B $ with the same size, let's look at their elements from one anti-diagonal $ a_1, \ldots, a_n $ and $ b_1, \ldots, b_n $. Then this anti-diagonal in $ \text{Hankel}(A + B) $ is written as $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $, resulting in a sum of  $ \text{Hankel}(A) $ and $ \text{Hankel}(B) $ anti-diagonals.
+		Having matrices $ A $ and $ B $ with the same size, let's look at their elements from some anti-diagonal: $ a_1, \ldots, a_n $ and $ b_1, \ldots, b_n $. Then this anti-diagonal in $ \text{Hankel}(A + B) $ is exactly $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $, resulting in a sum of  $ \text{Hankel}(A) $ and $ \text{Hankel}(B) $ anti-diagonals.
 		
-		Secondly, having a scalar $ \alpha $ it is also trivial that $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $. Then we finally derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
+		Secondly, having a scalar $ \alpha $ it is also trivial that $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $. Then we derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
 	\end{proof}
 	
 	Returning to the forth equality in (\ref{eq:decomp_method_ideal}), we can combine this lemma and the fact that $ \mathbf{H}_{x_k} $ is itself hankel to get a complete justification. This outputs in the correctness of series decomposition procedure for any chosen grouping of factors.
 	
 	\subsection*{Optimal decomposition and its computational complexity}\label{sec:optimal_decomp}
 	
-	Even though decomposition algorithm from the previous subsection is correct for any factors' grouping we might want to find the best one. This would mean every $ C_i $ to be as close to hankel matrix as possible. Having that the formulated decomposition concept would be fully accomplished and signal's components could be naturally extracted. Let's rewrite it as some optimization task.
+	Even though decomposition algorithm from the previous subsection is correct for any factors' grouping we might want to find the best one. This would mean every $ C_i $ to be as close to hankel matrix as possible. Having that, the formulated decomposition concept would be fully accomplished and signal's components could be naturally extracted. Let's express it as some optimization task.
 	
 	Consider the first equality from (\ref{eq:decomp_method_ideal}) and itself with hankel operator applied. Also recall that $ \mathbf{H}_{x_k} $ is hankel. We obtain:
 	
@@ -187,19 +185,21 @@
 		\end{cases*}
 	\end{equation*}
 	
-	Subtract the second equation from the first and denote $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $. This can be sensed as residual between initial matrix and its hankelized version. So we have:
+	Subtract the second equation from the first and denote $ H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $. This can be sensed as a residual between initial factor and its hankelized version. We get:
 	
 	\begin{equation}\label{eq:residuals_equation}
 		H_1 + \ldots + H_r = 0 \Leftrightarrow H_r = - \sum\limits_{j = 1}^{r - 1} H_j
 	\end{equation}
 	
-	What we have done is reformulated condition on $ C_i $ to be hankel in terms of residual matrices summing into zero inside groups: $ \sum_{k \in \mathbb{I}_i} H_k = 0, \  \forall i \in 1, \ldots, s $.
+	So what we have done is reformulated condition on $ C_i $ to be hankel in terms of residual matrices summing into zero inside groups: $ \sum_{k \in \mathbb{I}_i} H_k = 0, \  \forall i \in 1, \ldots, s $.
 	
 	Now let's simplify our case by decreasing the number of desired components from $ s $ to two. If we worked out the easier problem we could consecutively dissect components into two more and have as much of them as we want.  
 	
-	Next, (\ref{eq:residuals_equation}) shows all residual matrices already total in zero. Therefore we can discard, for example, $ H_r $ as group for it would be defined automatically if having groups for the rest factors. Let's introduce indicator-variables $ \beta_j \in \{0, 1\} $ showing in what of two groups factor $ j $ lies.
+	Next, (\ref{eq:residuals_equation}) shows all residual matrices already total in zero. Therefore we can discard, for example, $ H_r $ as group for it would be defined automatically if one had groups for the rest factors. Let's also introduce indicator-variables $ \beta_j \in \{0, 1\} $ showing in what of two groups factor $ j $ lies.
 	
-	Finally, we assume all $ H_i $ to be non-zero; otherwise we already have needed dissection. This last condition implies each group to have at least two residual matrices. So we are ready for the optimal decomposition problem statement:
+	Finally, we assume all $ H_i $ to be non-zero; otherwise we already have needed dissection. This last condition implies each group to have at least two residual matrices.
+	
+	So we are ready for the optimal decomposition problem statement:
 	
 	\begin{equation}
 		\begin{cases*}
@@ -209,7 +209,7 @@
 		\end{cases*}
 	\end{equation}
 	
-	To rewrite it in a more familiar way let's vectorize each $ H_i $ and put resulting vectors in a matrix $ \Lambda $. Furthermore, introduce $ \boldsymbol{\beta} = (\beta_1 \ldots \beta_{r-1}) $. Then, recall from previous subsection that it is highly unlikely for residual matrices to total in zero within all groups. The most we can is to make them as close to zero as possible. So restated problem:
+	To rewrite it in a more familiar way let's vectorize each $ H_i $ and put resulting vectors in a matrix $ \Lambda $. Furthermore, introduce $ \boldsymbol{\beta} = (\beta_1 \ldots \beta_{r-1}) $. Then, recall from the previous subsection that it is highly unlikely for residual matrices to total in zero within all groups. The most we are capable of is to make them as close to zero as possible. So restated problem:
 	
 	\begin{equation}\label{eq:decomp_search_final}
 		\begin{cases*}
@@ -219,19 +219,19 @@
 		\end{cases*}
 	\end{equation}
 	
-	Let's declare solution of this task \emph{optimal series decomposition}. It is represented as Integer Least Squares problem which is proved to be NP-hard~\cite{van1981another}. In short, subsection's output is:
+	Let's declare solution of this task as \emph{optimal series decomposition}. It is represented as Integer Least Squares problem (ILS) which is proved to be NP-hard~\cite{van1981another}. In short, subsection's output is:
 	
 	\begin{Th}
-		Optimal series decomposition as special grouping of trajectory matrix's factors search is NP-hard.
+		Optimal series decomposition as a special grouping of trajectory matrix's factors is NP-hard.
 	\end{Th}
 	
 	In spite of the result, methods and heuristics exist to reduce ILS to computationally effective objectives~\cite{Grafarend2022}.
 	
 	\subsection*{Forecasting}\label{sec:tssa_forecast}
 	
-	In our model prediction making comes down to restoration of delay vectors for every signal in a set. Because we have the shared basis among series $ \{\mathbf{a}_i\}_{i = 1}^r $ we can process them separately. 
+	In our model prediction making comes down to the restoration of delay vectors for every signal in a set. Because we have the shared basis $ \{\mathbf{a}_i\}_{i = 1}^r $ among the series we can process them separately. 
 	
-	If $ \{\mathbf{a}_i\}_{i = 1}^r $ was orthornormal we could inherit SSA prediction technique~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. But we don't have this warranty so we are going to adopt it for our case.
+	If $ \{\mathbf{a}_i\}_{i = 1}^r $ was orthornormal we could inherit SSA prediction technique~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. But we don't have this warranty so we are going to adopt for our case.
 	
 	Having input series $ x(t) $ we want to forecast it for one step further. Delay vector $ \delayV{N + 1} = (x(N - L) \ldots x(N + 1))^{\mathsf{T}} $, with the last component unknown, belongs to the $ \text{Lin}(\{\mathbf{a}_i\}) $. In terms of full-ranked matrix $ A \in \mathbb{R}^{L \times r} $ (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}) it can be written as:
 	
@@ -246,13 +246,13 @@
 	
 	Here variable $ \boldsymbol{\lambda} \in \mathbb{R}^r $. Delay vector and matrix are broken into two blocks associated with the \emph{known} and \emph{unknown} part of the series. To make prediction we need to find $ \boldsymbol{\lambda} $ so we focus on the first obtained equation.
 	
-	The matrix of this linear system $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ has a rank at least $ r - 1 $ by construction. But we assume elimination of one row in $ A $ will actually keep the rank full. As experiments show this is not burdensome. After that, we note that the linear system itself is overdetermined due to the model hypothesis $ r \ll L $. Therefore it is reasonable to get solution in a least squares sense: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. In the end, forecast is given by the formula:
+	The matrix of this linear system $ A_{kn} \in \mathbb{R}^{(L - 1) \times r} $ has a rank at least $ r - 1 $ by construction. But we assume elimination of one row in $ A $ will actually keep the rank full. As experiments show this is not burdensome. After that, we note that the linear system itself is overdetermined due to the model's hypothesis $ r \ll L $. Therefore it is reasonable to get solution in a least squares sense: $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. After substituting in the second equation, forecast is given by the formula:
 	
 	\begin{equation}\label{eq:tssa_pred}
 		x(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn}
 	\end{equation}
 	
-	Here $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T = \mathbf{d}^{\mathsf{T}} $ --- row vector which once computed can be reused to make prediction for arbitrary horizon ahead.
+	Here $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T = \mathbf{d}^{\mathsf{T}} $ --- row vector, and once computed can be reused to make prediction for arbitrary horizon ahead.
 	
 	Now let's rewrite (\ref{eq:tssa_pred}) in terms of $ x(t) $:
 	
@@ -263,7 +263,7 @@
 	This expression leads to the final result about the forecast behavior:
 	
 	\begin{Th}		
-		The model of tSSA's forecast is \emph{autoregressive} $ AR(L - 1) $. It is fully characterized by coefficients $ d_i $ found in (\ref{eq:tssa_pred}).
+		The model of tSSA's forecast is \emph{autoregressive} $ AR(L - 1) $. It can be fully characterized by coefficients $ d_i $ found in (\ref{eq:tssa_pred}).
 	\end{Th}
 	
 	\section{Computational experiment}	
@@ -272,7 +272,7 @@
 	
 	In the current section we will demonstrate application of our method for decomposition and forecast of multidimensional time series. We will also compare it with other models: mSSA, VAR, RNN. The latter two are only able for prediction. The mSSA has a lot in common with our approach and is valid for both tasks.
 	
-	To measure quality of the decomposition we need special metrics:
+	To measure quality of the decomposition we need special metrics. They are motivated by the corresponding analysis of our method (see \hyperref[sec:decomposition]{Time series decomposition}):
 	
 	\begin{Def}
 		\emph{Absolute hankel error} of matrix M is 
@@ -293,13 +293,11 @@
 		
 	\end{Def}
 	
-	AHE can be imagined as a total standard deviation of matrix's anti-diagonals. RHE is its more convenient modification which will be used further.	
+	AHE can be imagined as a total standard deviation of matrix's anti-diagonals. RHE is its more convenient modification which will be used later.	Now, recall that series decomposition on additive components is equivalent to trajectory matrix decomposition, viz. obtaining matrices $ C_i $ (see \hyperref[sec:decomposition]{Time series decomposition}). So the RHE will be calculated for them as well as mean RHE for every series in a set --- $ \overline{\text{RHE}}_{ts} $ and the mean among all series --- $ \overline{\text{RHE}} $. 
 	
-	Now, recall that series decomposition on additive components is equivalent to trajectory matrix decomposition, viz. obtaining of matrices $ C_i $ (see \hyperref[sec:decomposition]{Time series decomposition}). The RHE will be calculated for them as well as mean RHE for every series in a set --- $ \overline{\text{RHE}}_{ts} $ and the mean among all series --- $ \overline{\text{RHE}} $. 
+	To measure forecast quality we will use standard metrics: \emph{mean squared error} $ \text{MSE}_{ts} $ and \emph{mean absolute percentage error} $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
 	
-	To measure forecast quality we will be using standard metrics: mean squared error $ \text{MSE}_{ts} $ and mean absolute percentage error $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
-	
-	Two sets of data will be involved. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, three series describing weather conditions in Berlin from 1980 to 1990: temperature, precipitation and air pressure (fig. \ref{fig:weather_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}). Then, individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
+	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, three series describing weather conditions in Berlin from 1980 to 1990: temperature, precipitation and air pressure (fig. \ref{fig:weather_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}). Individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
 	
 	\begin{figure}[h]
 		\centering
@@ -316,13 +314,13 @@
 		\caption{Time series for temperature, precipitation and air pressure from meteostation in Berlin.}\label{fig:weather_data}
 	\end{figure}
 	
-	Let's describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that trajectory matrices' decomposition (\ref{eq:tSSA_decomp}) is not exact. This relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameter's vector. The used solver is SCIP~\cite{BolusaniEtal2024ZR}.
+	We should also describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that decomposition (\ref{eq:tSSA_decomp}) is not precise. So this relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameters vector. The used solver is SCIP~\cite{BolusaniEtal2024ZR}.
 
-	Finally, let's fix a value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We set $ L = 500 $.
+	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $.
 	
 	\subsection*{Results and discussion}
 	
-	We begin with forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_weather}. The minimum point and overall pattern are similar for MSE and MAPE. Furthermore, overtraining effect can be seen with especially sharp surge on the weather data. Nonetheless, CPD approximation error decease monotonously, fig. \ref{fig:cpd_errors}.
+	Let's begin with the forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_weather}. The minimum point and overall pattern are similar for MSE and MAPE. Furthermore, overtraining effect can be seen with especially sharp surge on the weather data. Nonetheless, CPD approximation error decease monotonously as fig. \ref{fig:cpd_errors} illustrates.
 	
 	\begin{figure}[h]
 		\centering
@@ -345,9 +343,9 @@
 		\caption{Relative CPD approximation errors depending on CPD rank. Left is for electricity, right is for weather.}\label{fig:cpd_errors}
 	\end{figure}
 	
-	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity CPD rank is rather high and so the order of autoregression forecast model (see \hyperref[sec:tssa_forecast]{Forecasting}). It allows for the complex prediction. On the other hand, for the weather high rank led to unstable and unbound forecast, but with the small rank one has few degrees of freedom. Consequently, we can only obtain some mean values for the future.
+	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity, CPD rank is rather high and so the order of the forecast model (see \hyperref[sec:tssa_forecast]{Forecasting}). It allows for the complex prediction. On the other hand, for the weather high rank actually led to unstable and unbound forecast. But with the small rank the model has few degrees of freedom. Consequently, we can obtain only mean values for the future.
 	
-	The final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_weather}. Our method gave the best output. Close performance was shown by mSSA. The VAR model appeared unstable for the chosen prediction horizon and RNN could only learn the constant function from data.
+	The final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_weather}. They report our method to give the best output. Close performance was shown by mSSA. The VAR model appeared unstable for the chosen prediction horizon and RNN could only learn the constant function from the data.
 	
 	\def\arraystretch{1.1}
 	\begin{table}[h]
@@ -383,11 +381,11 @@
 		\end{tabular}
 	\end{table}
 	
-	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or even increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimensionality (see section \ref{sec:problem_statement}). So this approves the major premise of our method --- small real dimension of the data.s
+	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or even increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimension (see section \ref{sec:problem_statement}). Combining, we have an evidence that the major premise of our method --- small real dimension of the data, holds.
 	
-	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:weather_decomp_tssa} one can see best tSSA's decomposition on two components. Due to rather long computation of ILS we do not make more. And it is not necessary to catch the notion of shared basis for observed signals in a set. For example, decomposition for electricity generation and its price are almost identical up to the bias and scale. The same situation is for temperature and precipitation from the weather data, but air pressure got its own components. Now, let's interpret obtained results. On the fig. \ref{fig:weather_decomp_tssa} method extracted two periodical parts for each signal with large and much smaller amplitudes. Some noise is present in each component. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with different amplitude and bias.	
+	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:weather_decomp_tssa} one can see best tSSA decomposition on two components. Due to rather long computation of ILS we do not make more. And it is actually not necessary to catch the notion of a shared basis for observed signals. For example, decomposition of electricity generation and its price are almost identical up to the bias and scale. The same situation can be observed for temperature and precipitation in the weather data, but air pressure got its own components. Now, let's interpret obtained results. On the fig. \ref{fig:weather_decomp_tssa} we can see that the method extracted two periodical parts for each signal with different amplitudes. Some noise is present in each component. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with various amplitude and bias.	
 	
-	In comparison, we present mSSA's decomposition on five components,  fig. \ref{fig:electr_decomp_mssa} and \ref{fig:weather_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Nonetheless, the gained  components are simpler and more diverse --- algorithm extracted several trends and harmonics. Moreover, mSSA has slight advantage in decomposition quality as described in tab. \ref{tab:decomp_electr_results}, \ref{tab:decomp_weather_results}. To conclude, the complexity of tSSA decomposition problem is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
+	In comparison, we present mSSA's decomposition with five components on the fig. \ref{fig:electr_decomp_mssa} and \ref{fig:weather_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Nonetheless, the gained  components are simpler and more diverse --- algorithm extracted several trends and harmonics. Moreover, mSSA has a slight advantage in decomposition quality as described in tab. \ref{tab:decomp_electr_results}, \ref{tab:decomp_weather_results}. To conclude, the complexity of tSSA decomposition is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
 	
 	\def\arraystretch{1.2}
 	\begin{table}[h!]
@@ -418,7 +416,7 @@
 	
 	\section{Conclusion}
 	
-		Tensor method tSSA is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only low-dimensional representation of data. When applied to real sets of signals, these assumptions were confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further improvement.
+		Proposed tensor method is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only a possibility of low-dimensional data representation. When applied to real sets of signals, these assumptions were actually confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is an NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further method improvement.
 		
 		\begin{figure}[h]
 			\centering
@@ -451,7 +449,7 @@
 		
 		\begin{figure}[h]
 			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
+			\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
 			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
 			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
 			\caption{tSSA decomposition for weather data. CPD rank $ = 20 $}\label{fig:weather_decomp_tssa}
