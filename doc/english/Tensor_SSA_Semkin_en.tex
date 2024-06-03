@@ -318,41 +318,41 @@
 	
 	Let's describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that trajectory matrices' decomposition (\ref{eq:tSSA_decomp}) is not exact. This relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameter's vector. The used solver is SCIP~\cite{BolusaniEtal2024ZR}.
 
-	Finally, let's fix a value $ L $ common for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We set $ L = 500 $.
+	Finally, let's fix a value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We set $ L = 500 $.
 	
 	\subsection*{Results and discussion}
 	
-	Начнём с задачи прогнозирования. На рис. \ref{fig:mse_mape_electr} и \ref{fig:mse_mape_weather} отображена зависимость метрик качества прогноза tSSA в зависимости от ранга CP-разложения. Точка минимума и характер изменения MSE и MAPE совпадают. Наблюдается эффект переобучения при повышении значения ранга, особенно резкое ухудшение метрик у данных погоды. При этом ошибка CP-разложения монотонно убывает, см. рис. \ref{fig:cpd_errors}.
+	We begin with forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_weather}. The minimum point and overall pattern are similar for MSE and MAPE. Furthermore, overtraining effect can be seen with especially sharp surge on the weather data. Nonetheless, CPD approximation error decease monotonously, fig. \ref{fig:cpd_errors}.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MSE_rank.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MAPE_rank.png}
-		\caption{Данные электроэнергии. Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг.}\label{fig:mse_mape_electr}
+		\caption{$ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ metrics for tSSA forecast depending on CPD rank. Optimal point is marked with red. Electricity data.}\label{fig:mse_mape_electr}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/MSE_rank.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/MAPE_rank.png}
-		\caption{Данные погодных условий. Значения метрик $ \overline{\text{MSE}} $ и $ \overline{\text{MAPE}} $ предсказания tSSA для разных рангов CP-разложения. Отдельно выделен оптимальный ранг.}\label{fig:mse_mape_weather}
+		\caption{$ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ metrics for tSSA forecast depending on CPD rank. Optimal point is marked with red. Weather data.}\label{fig:mse_mape_weather}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/CPD_error.png}
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/CPD_error.png}
-		\caption{Относительные ошибки CPD-аппроксимации траекторных тензоров в зависимости от ранга разложения. Слева --- электроэнергии, справа --- погоды.}\label{fig:cpd_errors}
+		\caption{Relative CPD approximation errors depending on CPD rank. Left is for electricity, right is for weather.}\label{fig:cpd_errors}
 	\end{figure}
 	
-	Графики наилучшего прогноза tSSA приведены на рис. \ref{fig:tssa_electr_pred} и \ref{fig:tssa_weather_pred}, где наглядно видны различия метода с малым и большим рангом. В первом случае авторегрессионная модель прогноза большего порядка (см. теорему раздела \hyperref[sec:tssa_forecast]{Прогноз для набора рядов}), что позволяет точно аппроксимировать ряд. В случае же погоды большой порядок приводил к нестабильности и неограниченному росту, но при уменьшении степеней свободы возможно аппроксимировать сигналы только в среднем.
+	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity CPD rank is rather high and so the order of autoregression forecast model (see \hyperref[sec:tssa_forecast]{Forecasting}). It allows for the complex prediction. On the other hand, for the weather high rank led to unstable and unbound forecast, but with the small rank one has few degrees of freedom. Consequently, we can only obtain some mean values for the future.
 	
-	Итоговые метрики качества прогноза всех моделей --- в табл. \ref{tab:pred_res_electr} и \ref{tab:pred_res_weather}. Наш метод показал наилучшие результаты, хотя mSSA был близок по точности. Метод VAR оказался нестабилен на выбранном горизонте прогнозирования, а RNN обучался в константную функцию.
+	The final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_weather}. Our method gave the best output. Close performance was shown by mSSA. The VAR model appeared unstable for the chosen prediction horizon and RNN could only learn the constant function from data.
 	
 	\def\arraystretch{1.1}
 	\begin{table}[h]
 		\centering
-		\caption{Метрики моделей на прогнозировании данных электроэнергии}\label{tab:pred_res_electr}
+		\caption{Prediction quality of models for electricity data}\label{tab:pred_res_electr}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
 			& \textit{tSSA}  & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
@@ -368,7 +368,7 @@
 	\def\arraystretch{1.1}
 	\begin{table}[h]
 		\centering
-		\caption{Метрики моделей на прогнозировании данных погоды}\label{tab:pred_res_weather}
+		\caption{Prediction quality of models for weather data}\label{tab:pred_res_weather}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
 			& \textit{tSSA}                & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
@@ -383,16 +383,16 @@
 		\end{tabular}
 	\end{table}
 	
-	Теперь рассмотрим задачу декомпозиции. На рис. \ref{fig:decomp_rhe_rank} представлены зависимости качества разложения от значения CP-ранга. В обоих случаях $ \overline{\text{RHE}} $ достаточно быстро достигает минимума, после чего не меняется или растёт. Вспоминая аналогичный результат для прогнозирования, можно сделать вывод, что метод tSSA достигает наибольшей обобщающей способности на небольших канонических рангах траекторных тензоров данных. В свою очередь, этот ранг пропорционален размерности собственного пространства сигналов (см. начало раздела \ref{sec:problem_statement}). Из этого заключаем о выполнении главной теоретической предпосылки для применения нашего метода.
+	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or even increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimensionality (see section \ref{sec:problem_statement}). So this approves the major premise of our method --- small real dimension of the data.s
 	
-	На рис. \ref{fig:electr_decomp_tssa} и \ref{fig:weather_decomp_tssa} представлены результаты наилучшей найденной декомпозиции рядов на две компоненты методом tSSA. В силу вычислительной сложности задачи ILS, разложение на б$\acute{\text{о}}$льшее количество компонент не производится. Из графиков видно, как сильно общий базис сигналов влияет на их декомпозицию: для генерации электроэнергии и её цены компоненты получились почти идентичными, с точностью до смещения и масштаба. Аналогичная ситуация для температуры и осадков в данных погоды, а для атмосферного давления разложение получилось другим. Далее, на рис. \ref{fig:weather_decomp_tssa} метод выделил для каждого сигнала по две периодические составляющие: одна из них большой амплитуды, другая много меньшей. Небольшой шум остался в каждой компоненте. На рис. \ref{fig:electr_decomp_tssa} метод выделил по два высокочастотных колебания разной амплитуды и смещения.
+	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:weather_decomp_tssa} one can see best tSSA's decomposition on two components. Due to rather long computation of ILS we do not make more. And it is not necessary to catch the notion of shared basis for observed signals in a set. For example, decomposition for electricity generation and its price are almost identical up to the bias and scale. The same situation is for temperature and precipitation from the weather data, but air pressure got its own components. Now, let's interpret obtained results. On the fig. \ref{fig:weather_decomp_tssa} method extracted two periodical parts for each signal with large and much smaller amplitudes. Some noise is present in each component. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with different amplitude and bias.	
 	
-	Для сравнения на рис. \ref{fig:electr_decomp_mssa} и \ref{fig:weather_decomp_mssa} приведены результаты декомпозиции методом mSSA на пять компонент. Для их получения не было необходимости в решении ILS или настраивания CP-ранка, но они подбиралась вручную на основе близости сингулярных чисел некоторой матрицы, см. \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Тем не менее компоненты получились более интерпретируемыми и подробными: метод выделил несколько трендов и гармоник. Также, как видно из табл. \ref{tab:decomp_electr_results} и \ref{tab:decomp_weather_results}, mSSA немного выиграл по точности. Т.о. вычислительная сложность декомпозиции tSSA является главной проблемой метода и требует разработки собственных эвристик, которые, к слову, у mSSA уже имеются \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.	
+	In comparison, we present mSSA's decomposition on five components,  fig. \ref{fig:electr_decomp_mssa} and \ref{fig:weather_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Nonetheless, the gained  components are simpler and more diverse --- algorithm extracted several trends and harmonics. Moreover, mSSA has slight advantage in decomposition quality as described in tab. \ref{tab:decomp_electr_results}, \ref{tab:decomp_weather_results}. To conclude, the complexity of tSSA decomposition problem is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
 	
 	\def\arraystretch{1.2}
 	\begin{table}[h!]
 		\centering
-		\caption{Метрики моделей на декомпозиции данных электроэнергии}\label{tab:decomp_electr_results}
+		\caption{Decomposition quality of models for electricity data}\label{tab:decomp_electr_results}
 		\begin{tabular}{|c|c|c|}
 			\hline
 			& tSSA  & mSSA           \\ \hline
@@ -405,7 +405,7 @@
 	\def\arraystretch{1.2}
 	\begin{table}[h!]
 		\centering
-		\caption{Метрики моделей на декомпозиции данных погоды}\label{tab:decomp_weather_results}
+		\caption{Decomposition quality of models for weather data}\label{tab:decomp_weather_results}
 		\begin{tabular}{|c|c|c|}
 			\hline
 			& tSSA  & mSSA           \\ \hline
@@ -416,64 +416,64 @@
 		\end{tabular}
 	\end{table}	
 	
-	\section{Заключение}
+	\section{Conclusion}
 	
-	Тензорный метод tSSA был разработан для прогноза и декомпозиции набора временных рядов, обработка которых требует учёта фактора взаимосвязанности. Его главное достоинство --- проста в использовании: имеется всего два настраиваемых параметра, для которых не требуется изощрённых процедур обучения. Между тем, теория метода опирается на весьма общую модель динамических систем и предъявляет к данным лишь возможность маломерного представления. При применении на реальных датасетах удалось установить справедливость теоретических требований алгоритма, а также показать качество выше нейросетевых и статистических подходов. Главным вызовом для tSSA является результат о NP-сложности поиска оптимальной декомпозиции рядов. Нахождение способов решения этой проблемы или поиск другого пути для построения разложения --- основные направления дальнейшего развития метода.
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
-		\caption{Предсказание данных электроэнергии методом tSSA. CPD-ранг $ = 30 $}\label{fig:tssa_electr_pred}
-	\end{figure}
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
-		\caption{Предсказание данных погоды методом tSSA. CPD-ранг $ = 5 $}\label{fig:tssa_weather_pred}
-	\end{figure}
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/RHE_mean.png}
-		\caption{Зависимость метрики $ \overline{\text{RHE}} $ от ранга CP-разложения. Слева --- для данных электроэнергии, справа --- погоды. Отдельно выделен оптимальный ранг.}\label{fig:decomp_rhe_rank}
-	\end{figure}
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
-		\caption{Разложение рядов на две компоненты методом tSSA. Данные электроэнергии. CPD-ранг $ = 20 $}\label{fig:electr_decomp_tssa}
-	\end{figure}
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
-		\caption{Разложение рядов на две компоненты методом tSSA. Данные погоды. CPD-ранг $ = 20 $}\label{fig:weather_decomp_tssa}
-	\end{figure}
-	
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
-		\caption{Разложение рядов на компоненты методом mSSA. Данные электроэнергии.}\label{fig:electr_decomp_mssa}
-	\end{figure}
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Temperature.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Precipitation.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
-		\caption{Разложение рядов на компоненты методом mSSA. Данные погоды.}\label{fig:weather_decomp_mssa}
-	\end{figure}
+		Tensor method tSSA is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only low-dimensional representation of data. When applied to real sets of signals, these assumptions were confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further improvement.
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+			\caption{tSSA forecast for electricity data. CPD rank $ = 30 $}\label{fig:tssa_electr_pred}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
+			\caption{tSSA forecast for weather data. CPD rank $ = 5 $}\label{fig:tssa_weather_pred}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/RHE_mean.png}
+			\caption{Relation between $ \overline{\text{RHE}} $ metrics and CPD rank. The left is for electricity data, the right is for weather data. Optimal point is marked with red}\label{fig:decomp_rhe_rank}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
+			\caption{tSSA decomposition for electricity data. CPD rank $ = 20 $}\label{fig:electr_decomp_tssa}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
+			\caption{tSSA decomposition for weather data. CPD rank $ = 20 $}\label{fig:weather_decomp_tssa}
+		\end{figure}
+		
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
+			\caption{mSSA decomposition for electricity data}\label{fig:electr_decomp_mssa}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Temperature.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Precipitation.png}
+			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
+			\caption{mSSA decomposition for weather data}\label{fig:weather_decomp_mssa}
+		\end{figure}
 		
 		\clearpage
 		\printbibliography
 	
-\end{document}
+ \end{document}
