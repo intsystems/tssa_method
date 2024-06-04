@@ -1,9 +1,19 @@
-\input{MainPreambula}
-\usepackage[backend=biber, sorting=none]{biblatex}
-\usepackage{subfigure}
-\usepackage{authblk}
+\documentclass[referee, pdflatex]{sn-jnl}
 
+\usepackage[backend=biber, sorting=none]{biblatex}
 \addbibresource{lit.bib}
+
+\usepackage[usenames,dvipsnames,svgnames,table,rgb]{xcolor}
+\usepackage{geometry} 
+\usepackage{subfigure}
+\usepackage{graphicx} 
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{icomma}
+\usepackage[english]{babel}
+\usepackage{array,tabularx,tabulary,booktabs}
+\usepackage{multirow}
+% to insert .bib file directly in the current file if needed
+\usepackage{filecontents}
 
 \theoremstyle{definition}
 \newtheorem*{Def}{Definition}
@@ -11,20 +21,21 @@
 \newtheorem{Lem}{Lemma}
 \newtheorem{Th}{Theorem}
 
+% article-specific symbols
 \newcommand{\delayV}[1]{\overset{\leftarrow}{\mathbf{x}}_{#1}}
 \newcommand{\delayM}[1]{\overset{\leftarrow}{\mathbf{X}}_{#1}}
 
-\title{Tensor decomposition and forecast for multidimensional time series}
-
-\author[1]{Semkin Kirill}
-\author[2]{Strijov Vadim}
-
-\affil[1]{{\footnotesize Moscow Institute of Physics and Technology, semkin.ki@phystech.edu}}
-\affil[2]{{\footnotesize Moscow Institute of Physics and Technology, strijov@ccas.ru}}
-
-\date{}
-
 \begin{document}
+	
+	\title{Tensor decomposition and forecast for multidimensional time series}
+	
+	\author*[1]{\fnm{Kirill} \sur{Semkin}}\email{semkin.ki@phystech.edu}
+	\author*[2]{\fnm{Vadim} \sur{Strijov}}\email{strijov@ccas.ru}
+	
+	\affil*[1]{\orgname{Moscow Institute of Physics and Technology}}
+	\affil*[2]{\orgname{Moscow Institute of Physics and Technology}}
+	
+	\keywords{time series, decomposition, forecast, SSA, CPD}
 	
 	\maketitle
 	
@@ -34,13 +45,11 @@
 		
 	\end{abstract}
 	
-	\textbf{Key words}: {\small time series, decomposition, forecast, SSA, CPD}.
-	
 	\section{Introduction}\label{Intro}
 	
 	The main object of the paper is multidimensional time series --- a set of two or more of them $ \{x_i(t)\}_{i=1}^m $ where $ t \in 1 \ldots N $. %By series decomposition we mean additive expansion of each signals into several components.
 	
-	Decomposition~\cite{enders2010applied, x11, cleveland90} and forecast~\cite{3b1355aedd1041f1853e609a410576f3, enders2010applied, Box_Jenkins_methodology} methods for sole signal can not be directly transferred to the set of signals if their behavior is interconnected. For instance, let's take predator-prey model~\cite{Volterra:1928}. The size of one population is dependent on another's and vice-versa. Throughout the whole paper we assume this connection to exist and will give formal definitions in the scope of particular models. 
+	Decomposition~\cite{enders2010applied, x11, cleveland90} and forecast~\cite{3b1355aedd1041f1853e609a410576f3, enders2010applied, Box_Jenkins_methodology, motrenko2022continuous} methods for sole signal can not be directly transferred to the set of signals if their behavior is interconnected. For instance, let's take predator-prey model~\cite{Volterra:1928}. The size of one population is dependent on another's and vice-versa. Throughout the whole paper we assume this connection to exist and will give formal definitions in the scope of particular models. 
 	
 	First, RNN model~\cite{neco, TEALAB2018334} links series with each other and their past values through composition of many nonlinear transformations. This information is encapsulated in the hidden vector at each step. With that, one is able to forecast future values.
 	
@@ -54,7 +63,7 @@
 	
 	Mentioned solutions allow to make predictions, but have quite a number of hyperparameters to be tuned. They also require exhaustive learning procedures. Furthermore, their structure does not contain explicit way of making series' decomposition.
 	
-	To tackle listed issues, we have developed a new method called tSSA which has only two adjustable variables. Computing tensor \emph{canonical polyadic decomposition} (CPD) is the only requirement for the forecast and decomposition. Next, this approach is an extension of SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for multidimensional time series. Due to that, its theory will be based on dynamical systems subtopic --- \textit{signal subspace}~\cite{1572261550523548160}. The main idea here is to build a phase representation of observed signals (fig. \ref{pic:phase_traj}).
+	To tackle listed issues, we have developed a new method called tSSA which has only two adjustable variables. Computing tensor \emph{canonical polyadic decomposition} (CPD) is the only requirement for the forecast and decomposition. Next, this approach is an extension of SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for multidimensional time series. Due to that, its theory will be based on dynamical systems subtopic --- \textit{signal subspace}~\cite{1572261550523548160, ignatov2016human}. The main idea here is to build a phase representation of observed signals (fig. \ref{pic:phase_traj}).
 	
 	Besides, we should mention another SSA modification --- mSSA~\cite{mSSA_overview}. In contrast, it operates with data only in a way of matrices and matrix decomposition. Nonetheless, both methods share same ideas in forecast and decomposition techniques.
 	
@@ -87,7 +96,7 @@
 	
 	After that, it is hypothesized that trajectories $ \mathbf{y}(t) $ actually belong to a smaller dimension manifold $ M \subset X $. So now we should find an embedding of $ M $ into $ \mathbb{R}^{L} $ for some $ L $ and discover a basis in the image of the embedding. Having done that, we will obtain characterization of the initial system in terms of the standard linear space. The same will be equally applied to all $ x_i(t) $.
 	
-	\subsection*{One signal case}
+	\subsection{One signal case}
 	
 	Our future approach roots from SSA method and Takens's theorem~\cite{citeulike:2735031}. Let's describe it in short. The theorem provides a solution for the stated problem in single series case: we associate any point $ \mathbf{y}(t) \in M $ with the following vector:
 	
@@ -103,7 +112,7 @@
 		\mathbf{H}_x = [ \delayV{1} \ldots  \delayV{N - L + 1}]
 	\]
 	
-	\subsection*{Series interconnection and tSSA method}\label{sec:tssa_method}
+	\subsection{Series interconnection and tSSA method}\label{sec:tssa_method}
 	
 	Now let's generalize previous results for the multiple series.
 	
@@ -144,7 +153,7 @@
 	
 	What to the signals' linkage, it is regulated by $ \boldsymbol{\sigma}_{x_k} $. For instance, if all of them have zero elements in non-overlapping positions then our built subspace breaks down into a direct sum of individual signal's subspaces. It is a total linkage absence case. The exact opposite situation is when $ \boldsymbol{\sigma}_{x_k} $ are non-zero for all signals.
 	
-	\subsection*{Time series decomposition}\label{sec:decomposition}
+	\subsection{Time series decomposition}\label{sec:decomposition}
 	
 	We can break series into several components using following conception: \emph{decomposition of trajectory matrix $ \mathbf{H}_{x_k} $ defines decomposition of related signal}. Its first part implies representation of $ \mathbf{H}_{x_k} $ as a sum of factors (\ref{eq:tSSA_decomp}). This technique comes from SSA. Because all matrices are similarly decomposed, we can focus on the task for a single series.
 	
@@ -172,7 +181,7 @@
 	
 	Returning to the forth equality in (\ref{eq:decomp_method_ideal}), we can combine this lemma and the fact that $ \mathbf{H}_{x_k} $ is itself hankel to get a complete justification. This outputs in the correctness of series decomposition procedure for any chosen grouping of factors.
 	
-	\subsection*{Optimal decomposition and its computational complexity}\label{sec:optimal_decomp}
+	\subsection{Optimal decomposition and its computational complexity}\label{sec:optimal_decomp}
 	
 	Even though decomposition algorithm from the previous subsection is correct for any factors' grouping we might want to find the best one. This would mean every $ C_i $ to be as close to hankel matrix as possible. Having that, the formulated decomposition concept would be fully accomplished and signal's components could be naturally extracted. Let's express it as some optimization task.
 	
@@ -227,13 +236,13 @@
 	
 	In spite of the result, methods and heuristics exist to reduce ILS to computationally effective objectives~\cite{Grafarend2022}.
 	
-	\subsection*{Forecasting}\label{sec:tssa_forecast}
+	\subsection{Forecasting}\label{sec:tssa_forecast}
 	
 	In our model prediction making comes down to the restoration of delay vectors for every signal in a set. Because we have the shared basis $ \{\mathbf{a}_i\}_{i = 1}^r $ among the series we can process them separately. 
 	
 	If $ \{\mathbf{a}_i\}_{i = 1}^r $ was orthornormal we could inherit SSA prediction technique~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. But we don't have this warranty so we are going to adopt for our case.
 	
-	Having input series $ x(t) $ we want to forecast it for one step further. Delay vector $ \delayV{N + 1} = (x(N - L) \ldots x(N + 1))^{\mathsf{T}} $, with the last component unknown, belongs to the $ \text{Lin}(\{\mathbf{a}_i\}) $. In terms of full-ranked matrix $ A \in \mathbb{R}^{L \times r} $ (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}) it can be written as:
+	Having input series $ x(t) $ we want to forecast it for one step further. Delay vector $ \delayV{N + 1} = (x(N - L) \ldots x(N + 1))^{\mathsf{T}} $, with the last component unknown, belongs to the $ \text{Lin}(\{\mathbf{a}_i\}) $. In terms of full-ranked matrix $ A \in \mathbb{R}^{L \times r} $ (see section \ref{sec:tssa_method}) it can be written as:
 	
 	\begin{align}\label{eq:main_pred_for_A}
 		\delayV{N + 1} = A \boldsymbol{\lambda} &\Leftrightarrow \begin{cases}
@@ -268,11 +277,11 @@
 	
 	\section{Computational experiment}	
 	
-	\subsection*{Goals and setting}
+	\subsection{Goals and setting}
 	
 	In the current section we will demonstrate application of our method for decomposition and forecast of multidimensional time series. We will also compare it with other models: mSSA, VAR, RNN. The latter two are only able for prediction. The mSSA has a lot in common with our approach and is valid for both tasks.
 	
-	To measure quality of the decomposition we need special metrics. They are motivated by the corresponding analysis of our method (see \hyperref[sec:decomposition]{Time series decomposition}):
+	To measure quality of the decomposition we need special metrics. They are motivated by the corresponding analysis of our method (see section \ref{sec:decomposition}) :
 	
 	\begin{Def}
 		\emph{Absolute hankel error} of matrix M is 
@@ -293,11 +302,11 @@
 		
 	\end{Def}
 	
-	AHE can be imagined as a total standard deviation of matrix's anti-diagonals. RHE is its more convenient modification which will be used later.	Now, recall that series decomposition on additive components is equivalent to trajectory matrix decomposition, viz. obtaining matrices $ C_i $ (see \hyperref[sec:decomposition]{Time series decomposition}). So the RHE will be calculated for them as well as mean RHE for every series in a set --- $ \overline{\text{RHE}}_{ts} $ and the mean among all series --- $ \overline{\text{RHE}} $. 
+	AHE can be imagined as a total standard deviation of matrix's anti-diagonals. RHE is its more convenient modification which will be used later.	Now, recall that series decomposition on additive components is equivalent to trajectory matrix decomposition, viz. obtaining matrices $ C_i $ (see section \ref{sec:decomposition}). So the RHE will be calculated for them as well as mean RHE for every series in a set --- $ \overline{\text{RHE}}_{ts} $ and the mean among all series --- $ \overline{\text{RHE}} $. 
 	
 	To measure forecast quality we will use standard metrics: \emph{mean squared error} $ \text{MSE}_{ts} $ and \emph{mean absolute percentage error} $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
 	
-	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, three series describing weather conditions in Berlin from 1980 to 1990: temperature, precipitation and air pressure (fig. \ref{fig:weather_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see \hyperref[sec:tssa_method]{Series interconnection and tSSA method}). Individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
+	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, three series describing weather conditions in Berlin from 1980 to 1990: temperature, precipitation and air pressure (fig. \ref{fig:weather_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see section \ref{sec:tssa_method}). Individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
 	
 	\begin{figure}[h]
 		\centering
@@ -318,7 +327,7 @@
 
 	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $.
 	
-	\subsection*{Results and discussion}
+	\subsection{Results and discussion}
 	
 	Let's begin with the forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_weather}. The minimum point and overall pattern are similar for MSE and MAPE. Furthermore, overtraining effect can be seen with especially sharp surge on the weather data. Nonetheless, CPD approximation error decease monotonously as fig. \ref{fig:cpd_errors} illustrates.
 	
@@ -343,9 +352,24 @@
 		\caption{Relative CPD approximation errors depending on CPD rank. Left is for electricity, right is for weather.}\label{fig:cpd_errors}
 	\end{figure}
 	
-	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity, CPD rank is rather high and so the order of the forecast model (see \hyperref[sec:tssa_forecast]{Forecasting}). It allows for the complex prediction. On the other hand, for the weather high rank actually led to unstable and unbound forecast. But with the small rank the model has few degrees of freedom. Consequently, we can obtain only mean values for the future.
+	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity, CPD rank is rather high and so the order of the forecast model (see section \ref{sec:tssa_forecast}). It allows for the complex prediction. On the other hand, for the weather high rank actually led to unstable and unbound forecast. But with the small rank model has few degrees of freedom. Consequently, we can obtain only mean values for the future.
 	
-	The final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_weather}. They report our method to give the best output. Close performance was shown by mSSA. The VAR model appeared unstable for the chosen prediction horizon and RNN could only learn the constant function from the data.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+		\caption{tSSA forecast for electricity data. CPD rank $ = 30 $}\label{fig:tssa_electr_pred}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
+		\caption{tSSA forecast for weather data. CPD rank $ = 5 $}\label{fig:tssa_weather_pred}
+	\end{figure}
+	
+	The final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_weather}. They report our method to give the best output. Close performance was shown by mSSA. The VAR model appeared unstable for the chosen prediction horizon. RNN demonstrated the same behavior or was able to learn only the constant function from the data.
 	
 	\def\arraystretch{1.1}
 	\begin{table}[h]
@@ -370,22 +394,59 @@
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
 			& \textit{tSSA}                & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
-			$ \overline{\text{MSE}}_{\text{Temp}} $  & 14.16                        & 20.12         & 40.67        & -            \\ \hline
-			$ \overline{\text{MSE}}_{\text{Prec}} $  & 11.02                        & 11.23         & 22.84        & -            \\ \hline
-			$ \overline{\text{MSE}}_{\text{Pres}} $  & 98.02                        & 101.23        & 156.75       & -            \\ \hline
-			$ \overline{\text{MSE}} $        & \textbf{41.067}              & 44.193        & 73.420       & -            \\ \hline
-			$ \overline{\text{MAPE}}_{\text{Temp}} $ & 0.850 & 0.626         & 0.468        & -            \\ \hline
-			$ \overline{\text{MAPE}}_{\text{Prec}} $ & 3.151 & 2.834         & 4.637        & -            \\ \hline
-			$ \overline{\text{MAPE}}_{\text{Pres}} $ & 0.007 & 1.254         & 3.983        & -            \\ \hline
-			$ \overline{\text{MAPE}} $       & \textbf{1.336}               & 1.571         & 3.029        & -            \\ \hline
+			$ \overline{\text{MSE}}_{\text{Temp}} $  & 14.16                        & 20.12         & 40.67        & 177.84            \\ \hline
+			$ \overline{\text{MSE}}_{\text{Prec}} $  & 11.02                        & 11.23         & 22.84        & 14.05            \\ \hline
+			$ \overline{\text{MSE}}_{\text{Pres}} $  & 98.02                        & 101.23        & 156.75       & $ > 10^6 $            \\ \hline
+			$ \overline{\text{MSE}} $        & \textbf{41.067}              & 44.193        & 73.420       & $> 3 \cdot 10^5$            \\ \hline
+			$ \overline{\text{MAPE}}_{\text{Temp}} $ & 0.850 & 0.626         & 0.468        & 1.193            \\ \hline
+			$ \overline{\text{MAPE}}_{\text{Prec}} $ & 3.151 & 2.834         & 4.637        & 2.026            \\ \hline
+			$ \overline{\text{MAPE}}_{\text{Pres}} $ & 0.007 & 1.254         & 3.983        & 1.000            \\ \hline
+			$ \overline{\text{MAPE}} $       & \textbf{1.336}               & 1.571         & 3.029        & 1.406            \\ \hline
 		\end{tabular}
 	\end{table}
 	
 	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or even increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimension (see section \ref{sec:problem_statement}). Combining, we have an evidence that the major premise of our method --- small real dimension of the data, holds.
 	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/RHE_mean.png}
+		\caption{Relation between $ \overline{\text{RHE}} $ metrics and CPD rank. The left is for electricity data, the right is for weather data. Optimal point is marked with red}\label{fig:decomp_rhe_rank}
+	\end{figure}
+	
 	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:weather_decomp_tssa} one can see best tSSA decomposition on two components. Due to rather long computation of ILS we do not make more. And it is actually not necessary to catch the notion of a shared basis for observed signals. For example, decomposition of electricity generation and its price are almost identical up to the bias and scale. The same situation can be observed for temperature and precipitation in the weather data, but air pressure got its own components. Now, let's interpret obtained results. On the fig. \ref{fig:weather_decomp_tssa} we can see that the method extracted two periodical parts for each signal with different amplitudes. Some noise is present in each component. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with various amplitude and bias.	
 	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
+		\caption{tSSA decomposition for electricity data. CPD rank $ = 20 $}\label{fig:electr_decomp_tssa}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
+		\caption{tSSA decomposition for weather data. CPD rank $ = 20 $}\label{fig:weather_decomp_tssa}
+	\end{figure}
+	
 	In comparison, we present mSSA's decomposition with five components on the fig. \ref{fig:electr_decomp_mssa} and \ref{fig:weather_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Nonetheless, the gained  components are simpler and more diverse --- algorithm extracted several trends and harmonics. Moreover, mSSA has a slight advantage in decomposition quality as described in tab. \ref{tab:decomp_electr_results}, \ref{tab:decomp_weather_results}. To conclude, the complexity of tSSA decomposition is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
+		\caption{mSSA decomposition for electricity data}\label{fig:electr_decomp_mssa}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Temperature.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Precipitation.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
+		\caption{mSSA decomposition for weather data}\label{fig:weather_decomp_mssa}
+	\end{figure}
 	
 	\def\arraystretch{1.2}
 	\begin{table}[h!]
@@ -418,60 +479,6 @@
 	
 		Proposed tensor method is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only a possibility of low-dimensional data representation. When applied to real sets of signals, these assumptions were actually confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is an NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further method improvement.
 		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
-			\caption{tSSA forecast for electricity data. CPD rank $ = 30 $}\label{fig:tssa_electr_pred}
-		\end{figure}
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Temperature.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Precipitation.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/prediction/cpd_rank_5/Pressure.png}
-			\caption{tSSA forecast for weather data. CPD rank $ = 5 $}\label{fig:tssa_weather_pred}
-		\end{figure}
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/RHE_mean.png}
-			\caption{Relation between $ \overline{\text{RHE}} $ metrics and CPD rank. The left is for electricity data, the right is for weather data. Optimal point is marked with red}\label{fig:decomp_rhe_rank}
-		\end{figure}
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production_program.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
-			\caption{tSSA decomposition for electricity data. CPD rank $ = 20 $}\label{fig:electr_decomp_tssa}
-		\end{figure}
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Temperature.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Precipitation.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/tssa/figs/decomposition/cpd_rank_20/Pressure.png}
-			\caption{tSSA decomposition for weather data. CPD rank $ = 20 $}\label{fig:weather_decomp_tssa}
-		\end{figure}
-		
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
-			\caption{mSSA decomposition for electricity data}\label{fig:electr_decomp_mssa}
-		\end{figure}
-		
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Temperature.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Precipitation.png}
-			\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/weather/mssa/figs/decomposition/manual/grouping_1/Average_Pressure.png}
-			\caption{mSSA decomposition for weather data}\label{fig:weather_decomp_mssa}
-		\end{figure}
-		
-		\clearpage
 		\printbibliography
 	
  \end{document}

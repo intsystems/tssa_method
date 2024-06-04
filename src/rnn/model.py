@@ -15,7 +15,7 @@ class RnnSignalPredictor(nn.Module):
         # simple FF network
         self._hid_to_target = nn.Linear(hidden_dim, input_dim)
 
-        self._h_0 = torch.ones((num_layers, 1, hidden_dim))
+        self._h_0 = torch.nn.Parameter(torch.ones((num_layers, 1, hidden_dim)), requires_grad=False)
         #self._c_0 = 5 * torch.ones((num_layers, 1, hidden_dim))
         
         self._rnn_unit = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True)

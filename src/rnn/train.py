@@ -59,7 +59,15 @@ def EvaluatePredictor(
         model_predictions = model_predictions.squeeze(0).to(device='cpu')
 
         mse_metric = torch.mean((model_predictions - test_data) ** 2, dim=0).numpy()
-        mape_metric = torch.mean(torch.abs((model_predictions - test_data) / test_data), dim=0).numpy()
+
+        mape_metric = []
+        mape_vals: torch.Tensor = (model_predictions - test_data) / test_data
+        for i in range(mape_vals.shape[1]):
+            cur_mape_vals = mape_vals[:, i]
+            # get rid of infinite values
+            cur_mape_vals = cur_mape_vals[~torch.isinf(cur_mape_vals)]
+            mape_metric.append(torch.mean(torch.abs(cur_mape_vals)))
+        mape_metric = np.array(mape_metric)
 
     return (mse_metric, mape_metric)
 
