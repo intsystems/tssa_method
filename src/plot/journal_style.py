@@ -14,13 +14,15 @@ class EnableJournalStylePlotting:
 
         mpl.rcParams['figure.dpi'] = 300
         mpl.rcParams['font.family'] = 'DejaVu Serif'
-        mpl.rcParams['lines.linewidth'] = 1.5
-        mpl.rcParams['lines.markersize'] = 9
-        mpl.rcParams['xtick.labelsize'] = 20
-        mpl.rcParams['ytick.labelsize'] = 20
-        mpl.rcParams['legend.fontsize'] = 20
-        mpl.rcParams['axes.titlesize'] = 30
-        mpl.rcParams['axes.labelsize'] = 20
+        mpl.rcParams['lines.linewidth'] = 2
+        mpl.rcParams['lines.markersize'] = 12
+        mpl.rcParams['xtick.labelsize'] = 24
+        mpl.rcParams['ytick.labelsize'] = 24
+        mpl.rcParams['legend.fontsize'] = 24
+        mpl.rcParams['axes.titlesize'] = 36
+        mpl.rcParams['axes.labelsize'] = 24
+        mpl.rcParams['figure.titlesize'] = 36
+        mpl.rcParams['figure.labelsize'] = 24
 
     def __exit__(self, *args, **kwargs):
         self._mpl_context.__exit__(*args, **kwargs)
