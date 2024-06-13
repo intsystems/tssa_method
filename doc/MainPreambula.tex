@@ -18,9 +18,6 @@
 %\mathtoolsset{showonlyrefs=true} % Показывать номера только у тех формул, на которые есть \eqref{} в тексте.
 %\usepackage{leqno} % Нумерация формул слева
 
-%% Свои команды
-\DeclareMathOperator{\sgn}{\mathop{sgn}}
-
 %% Перенос знаков в формулах (по Львовскому)
 \newcommand*{\hm}[1]{#1\nobreak\discretionary{}
 	{\hbox{$\mathsurround=0pt #1$}}{}}
@@ -37,28 +34,17 @@
 \usepackage{longtable}  % Длинные таблицы
 \usepackage{multirow} % Слияние строк в таблице
 
-%%% Теоремы
-\theoremstyle{plain} % Это стиль по умолчанию, его можно не переопределять.
-\newtheorem{theorem}{Теорема}[section]
-\newtheorem{proposition}[theorem]{Утверждение}
-
-\theoremstyle{definition} % "Определение"
-\newtheorem{corollary}{Следствие}[theorem]
-\newtheorem{problem}{Задача}[section]
-
-\theoremstyle{remark} % "Примечание"
-\newtheorem*{nonum}{Решение}
-
 %%% Программирование
 \usepackage{etoolbox} % логические операторы
 
 %%% Страница
-\usepackage{extsizes} % Возможность сделать 14-й шрифт
+%\usepackage{extsizes} % Возможность сделать 14-й шрифт
 \usepackage{geometry} % Простой способ задавать поля
-\geometry{top=15mm}
+\geometry{a4paper}
+\geometry{top=20mm}
 \geometry{bottom=20mm}
-\geometry{left=20mm}
-\geometry{right=20mm}
+\geometry{left=30mm}
+\geometry{right=15mm}
 %
 %\usepackage{fancyhdr} % Колонтитулы
 % 	\pagestyle{fancy}

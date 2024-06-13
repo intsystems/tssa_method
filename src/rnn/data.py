@@ -23,7 +23,10 @@ def GetTrainDataloader(
     """
     # sample starting points in train time series to obtain a slice
     possible_starting_positions = np.arange(0, train_time_series.shape[0] - len_in_batch)
-    starting_points = np.random.choice(possible_starting_positions, num_samples, replace=False)
+    if possible_starting_positions.size >= num_samples:
+        starting_points = np.random.choice(possible_starting_positions, num_samples, replace=False)
+    else:
+        starting_points = np.random.choice(possible_starting_positions, num_samples, replace=True)
 
     # build samples
     dataset = np.empty((num_samples, len_in_batch, train_time_series.shape[1]))

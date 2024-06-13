@@ -94,6 +94,8 @@ def _get_accelerometry_data(type_label: int, participant_number: int):
     return np.concatenate([acc_data, gyr_data], axis=1)
 
 def GetMotionData():
+    """return train/test data and corresponding time grids
+    """
     # obtain data from participant #3
     data = _get_accelerometry_data(1, 3)[:3000]
     # split on train/test

@@ -53,11 +53,11 @@ class SSA_Base:
         # above the main antidiagonal and on it
         for i in range(ar.shape[0]):
             cur_sum = 0
-            for j in range(i + 1):
+            for j in range(min(i + 1, ar.shape[1])):
                 cur_sum += ar[i - j][j]
             avg = cur_sum / (i + 1)
 
-            for j in range(i + 1):
+            for j in range(min(i + 1, ar.shape[1])):
                 ar[i - j][j] = avg
 
         # below the main antidiagonal

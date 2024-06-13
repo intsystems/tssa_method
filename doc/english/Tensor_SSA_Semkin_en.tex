@@ -34,8 +34,8 @@
 	\author*[1]{\fnm{Kirill} \sur{Semkin}}\email{semkin.ki@phystech.edu}
 	\author*[2]{\fnm{Vadim} \sur{Strijov}}\email{strijov@ccas.ru}
 	
-	\affil*[1]{\orgname{Forecsis}}
-	\affil*[2]{\orgname{Forecsis}}
+	\affil*[1]{\orgname{Forecsys}}
+	\affil*[2]{\orgname{Forecsys}}
 	
 	\keywords{time series, decomposition, forecast, SSA, CPD}
 	
@@ -308,7 +308,7 @@
 	
 	To measure forecast quality we will use standard metrics: \emph{mean squared error} $ \text{MSE}_{ts} $ and \emph{mean absolute percentage error} $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
 	
-	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, six signals from motion sensors --- accelerometer and gyroscope (fig. \ref{fig:motion_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see section \ref{sec:tssa_method}). Individual series has a length $ \approx 3 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
+	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, six signals from the motion sensors --- accelerometer and gyroscope measurements for walking movements (fig. \ref{fig:motion_data}). We assume signals' inter-dependency based on economical/physical reasons as it is important premise for our approach (see section \ref{sec:tssa_method}). Individual series has a length $ \approx 3 \cdot 10^3 $  and $ \approx 1.5 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
 	
 	\begin{figure}[h]
 		\centering
@@ -319,18 +319,18 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/acceleromter.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/gyro.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/acceleromter_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/gyro_1.png}
 		\caption{Time series for linear and angular accelerations}\label{fig:motion_data}
 	\end{figure}
 	
 	We should also describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that decomposition (\ref{eq:tSSA_decomp}) is not precise. So this relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameters vector. The used solver is SCIP~\cite{BolusaniEtal2024ZR}.
 
-	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $.
+	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $ for electricity and $ L = 1000 $ for motion.
 	
 	\subsection{Results and discussion}
 	
-	Let's begin with the forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_motion}. The minimum point and overall pattern are similar for MSE and MAPE. Furthermore, overtraining effect can be seen in both cases as metrics increase after reaching minimum. Nonetheless, CPD approximation error decease monotonously, see fig. \ref{fig:cpd_errors}.
+	Let's begin with the forecast results. First, relation between prediction metrics for tSSA and trajectory tensor's rank is depicted on the fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_motion}. The common pattern for MSE and MAPE is that forecast quality decreases with greater ranks. Furthermore, overtraining effect for MAPE can be seen in both cases as metrics increase after reaching minimum. Nonetheless, CPD approximation error deceases monotonously, see fig. \ref{fig:cpd_errors}.
 	
 	\begin{figure}[h]
 		\centering
@@ -341,19 +341,19 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/prediction/MSE_rank.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/prediction/MAPE_rank.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/MSE_rank.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/MAPE_rank.png}
 		\caption{$ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ metrics for tSSA forecast depending on CPD rank. Optimal point is marked with red. Motion data.}\label{fig:mse_mape_motion}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/CPD_error.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/CPD_error.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/CPD_error.png}
 		\caption{Relative CPD approximation errors depending on CPD rank. Left is for electricity, right is for motion.}\label{fig:cpd_errors}
 	\end{figure}
 	
-	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_weather_pred}. For electricity, CPD rank is rather high and so the order of the forecast model (see section \ref{sec:tssa_forecast}). It allows for the complex prediction. On the other hand, for the motion high rank could actually led to unstable and unbound forecast. But with the small rank model has few degrees of freedom. Consequently, we can obtain only averaged values for the future.
+	The best tSSA forecast is shown on fig. \ref{fig:tssa_electr_pred} and \ref{fig:tssa_motion_pred}. For electricity, CPD rank is rather high and so the order of the forecast model (see section \ref{sec:tssa_forecast}). It allows for a detailed prediction. On the other hand, high rank for the motion data could actually led to unstable and unbound trajectories. But with the smaller rank model has fewer degrees of freedom. Consequently, we can obtain only averaged values for the future.
 	
 	\begin{figure}[h]
 		\centering
@@ -364,12 +364,12 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/prediction/cpd_rank_15/acceler.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/prediction/cpd_rank_15/gyro.png}
-		\caption{tSSA forecast for motion data. CPD rank $ = 15 $}\label{fig:tssa_weather_pred}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/cpd_rank_20/acceler.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/cpd_rank_20/gyro.png}
+		\caption{tSSA forecast for motion data. CPD rank $ = 20 $}\label{fig:tssa_motion_pred}
 	\end{figure}
 	
-	Final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_motion}. In most cases our method showed the best output. Close values were obtained with mSSA. The VAR model appeared unstable for the chosen prediction horizon. RNN demonstrated the same behavior or was able to learn only the constant function from the data.
+	Final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_motion}. In most cases our method showed the best output. Close values were obtained with mSSA. The VAR model appeared unstable for the chosen prediction horizons. RNN was able to learn only the constant function from the data for electricity, but large window size for accelerometry enabled it to make a better prediction.
 	
 	\def\arraystretch{1.1}
 	\begin{table}[h]
@@ -390,29 +390,29 @@
 	\def\arraystretch{1.1}
 	\begin{table}[h]
 		\centering
-		\caption{Prediction quality of models for weather data}\label{tab:pred_res_motion}
+		\caption{Prediction quality of models for motion data}\label{tab:pred_res_motion}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
 			& \textit{tSSA}                & \textit{mSSA} & \textit{VAR} & \textit{RNN} \\ \hline
-			$ \overline{\text{MSE}}_{\text{Accel}} $  & \textbf{0.04}                        & \textbf{0.04}         & 0.13        & 0.61            \\ \hline
-			$ \overline{\text{MSE}}_{\text{Gyro}} $  & \textbf{0.13}                        &\textbf{ 0.13}        & 0.83        & 1.18           \\ \hline
-			$ \overline{\text{MSE}} $  & \textbf{0.08}                        & \textbf{0.08}        & 0.48       & 0.90            \\ \hline
-			$ \overline{\text{MAPE}}_{\text{Accel}} $ & 2.070 & \textbf{2.048}         & 9.588        & 23.557            \\ \hline
-			$ \overline{\text{MAPE}}_{\text{Gyro}} $ & 1.891 & \textbf{1.797}         & 14.024        & 12.490            \\ \hline
-			$ \overline{\text{MAPE}} $       & 1.981               & \textbf{1.923}         & 11.806        & 18.024            \\ \hline
+			$ \overline{\text{MSE}}_{\text{Accel}} $  & 7.351          & 6.980 & 8.108  & 6.604          \\ \hline
+			$ \overline{\text{MSE}}_{\text{Gyro}} $   & 0.610          & 0.636 & 0.631  & 0.639          \\ \hline
+			$ \overline{\text{MSE}} $         & 3.981          & 3.808 & 4.370  & \textbf{3.622} \\ \hline
+			$ \overline{\text{MAPE}}_{\text{Accel}} $ & 3.558          & 3.516 & 3.370  & 1.747          \\ \hline
+			$ \overline{\text{MAPE}}_{\text{Gyro}} $  & 3.773          & 3.943 & 10.427 & 5.641          \\ \hline
+			$ \overline{\text{MAPE}} $        & \textbf{3.666} & 3.730 & 6.899  & 3.694          \\ \hline
 		\end{tabular}
 	\end{table}
 	
-	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimension (see section \ref{sec:problem_statement}). Combining, we have an evidence that the major premise of our method --- small real dimension of the data, holds.
+	Now we move to the decomposition. Fig. \ref{fig:decomp_rhe_rank} illustrates relation between quality metrics and CPD rank. In both cases $ \overline{\text{RHE}} $ rapidly reaches a minimum and then does not change or increase. Recalling the same result for the forecast we can conclude that tSSA has the greatest generalization capacity for the small tensor ranks. At the same time, the rank is proportional to the signal subspace dimension (see section \ref{sec:problem_statement}). Combining, we have an evidence that the major premise of our method --- small real dimension of the data --- holds.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/decomposition/RHE_mean.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/RHE_mean.png}
 		\caption{Relation between $ \overline{\text{RHE}} $ metrics and CPD rank. The left is for electricity data, the right is for motion data. Optimal point is marked with red}\label{fig:decomp_rhe_rank}
 	\end{figure}
 	
-	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:accel_decomp_tssa}, \ref{fig:gyro_decomp_tssa} one can see best tSSA decomposition on two components. Due to rather long computation of ILS we do not make more. And it is actually not necessary to catch the notion of a shared basis for observed signals. For example, decomposition of electricity generation and its price are almost identical up to the bias and scale. The same situation can be observed for the first components in the motion data, but the second has its own shape for accelerometer and gyroscope. Now, let's interpret obtained results. On the fig. \ref{fig:accel_decomp_tssa}, \ref{fig:gyro_decomp_tssa} we can see that the method extracted two periodical parts for each signal with different complexities and amplitudes. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with various amplitude and bias.	
+	One the fig. \ref{fig:electr_decomp_tssa}, \ref{fig:accel_decomp_tssa}, \ref{fig:gyro_decomp_tssa} one can see the best tSSA decomposition on two components. Due to rather long computation of ILS we do not make more. But it is actually not necessary to catch the notion of a shared basis for observed signals. For example, decomposition of electricity generation and its price are almost identical up to the bias and scale. The same situation can be observed for the second components of the linear and angular accelerations, but the first has its own shape. Now, let's interpret obtained results. On the fig. \ref{fig:electr_decomp_tssa} we have two high-frequency harmonics with various amplitudes and biases. On the fig. \ref{fig:accel_decomp_tssa}, \ref{fig:gyro_decomp_tssa} we can see rather tangled periodical trajectories. The first components have a much smaller scale then the second. All this implies complex dynamical system behind the scenes.
 	
 	\begin{figure}[h]
 		\centering
@@ -423,21 +423,21 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion/tssa/figs/decomposition/cpd_rank_10/acceler_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/decomposition/cpd_rank_10/acceler_2.png}
+		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/acceler_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/acceler_2.png}
 		\caption{tSSA decomposition for accelerometer data. CPD rank $ = 10 $}\label{fig:accel_decomp_tssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion/tssa/figs/decomposition/cpd_rank_10/gyro_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/tssa/figs/decomposition/cpd_rank_10/gyro_2.png}
+		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/gyro_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/gyro_2.png}
 		\caption{tSSA decomposition for gyroscope data. CPD rank $ = 10 $}\label{fig:gyro_decomp_tssa}
 	\end{figure}
 	
-	In comparison, we present mSSA's decomposition with four components on the fig. \ref{fig:electr_decomp_mssa} and three components on the fig. \ref{fig:accel_decomp_mssa}, \ref{fig:gyro_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. In that case, it is simpler to gain more items and therefore obtain more detailed decomposition. Nonetheless, automation here is hindered.
+	In comparison, we present mSSA's decomposition with four components on the fig. \ref{fig:electr_decomp_mssa} and three components on the fig. \ref{fig:accel_decomp_mssa}, \ref{fig:gyro_decomp_mssa}. There is no need to solve heavy ILS problem or pick over CPD rank, but it is a manual procedure based on singular values analysis of some matrix~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. In that case, it is simpler to gain more items and therefore obtain more detailed decomposition. Nonetheless, automation here is hindered. Moreover, in motion data case components are quite trivial and uninformative as method's approximation was to rude.
 	
-	Lastly, tSSA has an advantage in decomposition quality of motion data, see tab. \ref{tab:decomp_electr_results}, but slightly concedes for electricity data, tab. \ref{tab:decomp_weather_results}. To conclude, the complexity of tSSA decomposition is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
+	Lastly, tSSA slightly concedes in decomposition quality of the electricity and motion data, see tab. \ref{tab:decomp_electr_results}, \ref{tab:decomp_motion_results}. To conclude, the complexity of tSSA decomposition is the major stumbling block of our method which requires development of its own solutions and heuristics. For the record, mSSA has already had those~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}.
 	
 	\begin{figure}[h]
 		\centering
@@ -448,17 +448,17 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/acceler_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/acceler_2.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/acceler_3.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_2.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_3.png}
 		\caption{mSSA decomposition for accelerometer data}\label{fig:accel_decomp_mssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/gyro_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/gyro_2.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion/mssa/figs/decomposition/manual/grouping_2/gyro_3.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_2.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_3.png}
 		\caption{mSSA decomposition for gyroscope data}\label{fig:gyro_decomp_mssa}
 	\end{figure}
 	
@@ -478,13 +478,13 @@
 	\def\arraystretch{1.2}
 	\begin{table}[h!]
 		\centering
-		\caption{Decomposition quality of models for weather data}\label{tab:decomp_weather_results}
+		\caption{Decomposition quality of models for motion data}\label{tab:decomp_motion_results}
 		\begin{tabular}{|c|c|c|}
 			\hline
 			& tSSA  & mSSA           \\ \hline
-			$ \overline{\text{RHE}}_{\text{Accel}} $   & 0.230 & 0.433          \\ \hline
-			$ \overline{\text{RHE}}_{\text{Gyro}} $ & 0.264 & 0.312          \\ \hline
-			$ \overline{\text{RHE}} $         & \textbf{0.247} & 0.373 \\ \hline
+			$ \overline{\text{RHE}}_{\text{Accel}} $   & 0.438 & 0.394          \\ \hline
+			$ \overline{\text{RHE}}_{\text{Gyro}} $ & 0.732 & 0.468          \\ \hline
+			$ \overline{\text{RHE}} $         & 0.585 & \textbf{0.431} \\ \hline
 		\end{tabular}
 	\end{table}	
 	
