@@ -386,7 +386,6 @@
 	pages = {1735-1780},
 	year = {1997},
 	month = {11},
-	abstract = {Learning to store information over extended time intervals by recurrent backpropagation takes a very long time, mostly because of insufficient, decaying error backflow. We briefly review Hochreiter's (1991) analysis of this problem, then address it by introducing a novel, efficient, gradient based method called long short-term memory (LSTM). Truncating the gradient where this does not do harm, LSTM can learn to bridge minimal time lags in excess of 1000 discrete-time steps by enforcing constant error flow through constant error carousels within special units. Multiplicative gate units learn to open and close access to the constant error flow. LSTM is local in space and time; its computational complexity per time step and weight is O. 1. Our experiments with artificial data involve local, distributed, real-valued, and noisy pattern representations. In comparisons with real-time recurrent learning, back propagation through time, recurrent cascade correlation, Elman nets, and neural sequence chunking, LSTM leads to many more successful runs, and learns much faster. LSTM also solves complex, artificial long-time-lag tasks that have never been solved by previous recurrent network algorithms.},
 	issn = {0899-7667},
 	doi = {10.1162/neco.1997.9.8.1735},
 	url = {https://doi.org/10.1162/neco.1997.9.8.1735},
@@ -433,22 +432,6 @@
 	publisher={Department, Univ.}
 }
 
-@Inbook{Grafarend2022,
-	author="Grafarend, Erik
-	and Zwanzig, Silvelyn
-	and Awange, Joseph",
-	title="Integer Least Squares",
-	bookTitle="Applications of Linear and Nonlinear Models: Fixed Effects, Random Effects, and Total Least Squares",
-	year="2022",
-	publisher="Springer International Publishing",
-	address="Cham",
-	pages="579--603",
-	abstract="In this chapter the general mixed integer linear model is introduced and its background in application for the Global Navigation Satellite Systems (GNSS) is described. The fitting of such models is reduced to the integer least squares problem. The principles of solving integer least squares problem are explained and the LLL algorithm is presented.",
-	isbn="978-3-030-94598-5",
-	doi="10.1007/978-3-030-94598-5_16",
-	url="https://doi.org/10.1007/978-3-030-94598-5_16"
-}
-
 @techreport{BolusaniEtal2024ZR,
 	author = {Suresh Bolusani and Mathieu Besan{\c{c}}on and Ksenia Bestuzheva and Antonia Chmiela and Jo{\~{a}}o Dion{\'{i}}sio and Tim Donkiewicz and Jasper van Doornmalen and Leon Eifler and Mohammed Ghannam and Ambros Gleixner and Christoph Graczyk and Katrin Halbig and Ivo Hedtke and Alexander Hoen and Christopher Hojny and Rolf van der Hulst and Dominik Kamp and Thorsten Koch and Kevin Kofler and Jurgen Lentz and Julian Manns and Gioni Mexi and Erik~M\"{u}hmer and Marc E. Pfetsch and Franziska Schl{\"o}sser and Felipe Serrano and Yuji Shinano and Mark Turner and Stefan Vigerske and Dieter Weninger and Lixing Xu},
 	title = {{The SCIP Optimization Suite 9.0}},
@@ -481,3 +464,26 @@
 	publisher={Springer}
 }
 
+@misc{accelerometryData,
+	author = {Nahid, Abdullah-Al and Sikder, Niloy and Rafi, Ibrahim},
+	title = {KU-HAR: An Open Dataset for  Human Activity Recognition},
+	year = {2021},
+	doi = {10.17632/45f952y38r.5},
+	publisher = {Mendeley Data}
+}
+
+@Inbook{Grafarend2022,
+	author="Grafarend, Erik
+	and Zwanzig, Silvelyn
+	and Awange, Joseph",
+	title="Integer Least Squares",
+	bookTitle="Applications of Linear and Nonlinear Models: Fixed Effects, Random Effects, and Total Least Squares",
+	year="2022",
+	publisher="Springer International Publishing",
+	address="Cham",
+	pages="579--603",
+	abstract="In this chapter the general mixed integer linear model is introduced and its background in application for the Global Navigation Satellite Systems (GNSS) is described. The fitting of such models is reduced to the integer least squares problem. The principles of solving integer least squares problem are explained and the LLL algorithm is presented.",
+	isbn="978-3-030-94598-5",
+	doi="10.1007/978-3-030-94598-5\_16",
+	url="https://doi.org/10.1007/978-3-030-94598-5\_16"
+}

@@ -1,9 +1,6 @@
-\documentclass[referee, pdflatex]{sn-jnl}
+\documentclass[referee, pdflatex, sn-mathphys-num]{sn-jnl}
 
-\usepackage[backend=biber, sorting=none]{biblatex}
-\addbibresource{lit.bib}
-
-\usepackage[usenames,dvipsnames,svgnames,table,rgb]{xcolor}
+\usepackage{hyperref}
 \usepackage{geometry} 
 \usepackage{subfigure}
 \usepackage{graphicx} 
@@ -12,9 +9,6 @@
 \usepackage[english]{babel}
 \usepackage{array,tabularx,tabulary,booktabs}
 \usepackage{multirow}
-\usepackage{textcomp}
-% to insert .bib file directly in the current file if needed
-%\usepackage{filecontents}
 
 \theoremstyle{definition}
 \newtheorem*{Def}{Definition}
@@ -33,8 +27,8 @@
 	\author*[1]{\fnm{Kirill} \sur{Semkin}}\email{kirill.semkin32@mail.ru}
 	\author*[2]{\fnm{Vadim} \sur{Strijov}}\email{strijov@ccas.ru}
 	
-	\affil*[1]{\orgname{Forecsys$^\text{\textregistered}$} \orgaddress{\city{Moscow}}}
-	\affil*[2]{\orgname{Forecsys$^\text{\textregistered}$} \orgaddress{\city{Moscow}}}
+	\affil*[1]{\orgname{Forecsys$^\text{{\footnotesize \textregistered}}$} \orgaddress{\city{Moscow}} \country{Russia}}
+	\affil*[2]{\orgname{Forecsys$^\text{{\footnotesize \textregistered}}$} \orgaddress{\city{Moscow}} \country{Russia}}
 	
 	\keywords{time series, decomposition, forecast, SSA, CPD}
 	
@@ -42,17 +36,17 @@
 	
 	\begin{abstract}
 		
-		Processing of multidimensional time series is associated with additional task of determining interconnections between signals. Its ignorance may cause incorrectness of any method's outcomes. On the other hand, taking this dependencies into account makes models larger and less interpretable as well as series analysis' more narrow. A non-parametric method based on tensor data representation and SSA approach is proposed in the paper. Series decomposition technique and explicit forecast formula were derived. Finally, elaborated theory was applied to electricity consumption and accelerometry data. Obtained results were compared with mSSA, VAR, RNN models.
+		Processing of multidimensional time series is associated with additional task of determining interconnections between signals. Its ignorance may cause incorrectness of any method's outcomes. On the other hand, taking this dependencies into account makes models larger and less interpretable as well as series analysis' more narrow. A non-parametric method based on tensor data representation and Singular Spectrum Analysis (SSA) approach is proposed in the paper. Series decomposition technique and explicit forecast formula were derived. Finally, elaborated theory was applied to electricity consumption and accelerometry data. Obtained results were compared with mSSA, VAR, RNN models.
 		
 	\end{abstract}
 	
 	\section{Introduction}\label{Intro}
 	
-	The main object of the paper is multidimensional time series --- a set of two or more of them $ \{x_i(t)\}_{i=1}^m $ where $ t \in 1 \ldots N $. %By series decomposition we mean additive expansion of each signals into several components.
+	The main object of the paper is multidimensional time series --- a set of two or more of them $ \{x_i(t)\}_{i=1}^m $ where $ t \in 1 \ldots N $.
 	
 	Decomposition~\cite{enders2010applied, x11, cleveland90} and forecast~\cite{3b1355aedd1041f1853e609a410576f3, enders2010applied, Box_Jenkins_methodology, motrenko2022continuous} methods for sole signal can not be directly transferred to the set of signals if their behavior is interconnected. For instance, let's take predator-prey model~\cite{Volterra:1928}. The size of one population is dependent on another's and vice-versa. Throughout the whole paper we assume this connection to exist and will give formal definitions in the scope of particular models. 
 	
-	First, RNN model~\cite{neco, TEALAB2018334} links series with each other and their past values through composition of many nonlinear transformations. This information is encapsulated in the hidden vector at each step. With that, one is able to forecast future values.
+	First, recurrent neural network (RNN) model~\cite{neco, TEALAB2018334} links series with each other and their past values through composition of many nonlinear transformations. This information is encapsulated in the hidden vector at each step. With that, one is able to forecast future values.
 	
 	Second, vector autoregression (VAR)~\cite{VAR_model1, doi:10.1080/01621459.1962.10480664} is a linear stochastic model for multidimensional signals. Denoting vector $ \mathbf{x}_t = (x_1(t) \ldots x_m(t))^{\mathsf{T}} $ as a series realizations at time $ t $, their further dynamics is the following:
 	
@@ -307,7 +301,7 @@
 	
 	To measure forecast quality for the single series we will use standard metrics: \emph{mean squared error} $ \text{MSE}_{ts} $ and \emph{mean absolute percentage error} $ \text{MAPE}_{ts} $. Their averaging for all series are denoted as $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $.
 	
-	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, six signals from the motion sensors --- accelerometer and gyroscope measurements for walking movements (fig. \ref{fig:motion_data}). We assume signals inter-dependency based on economical/physical reasons as it is important premise for our approach (see section \ref{sec:tssa_method}). Individual series has a length $ \approx 3 \cdot 10^3 $  and $ \approx 1.5 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
+	Two sets of data will be involved in experiment. First, electricity consumption paired with its generation price (fig. \ref{fig:electr_data}). Second, six signals from the motion sensors --- accelerometer and gyroscope measurements for walking movements~\cite{accelerometryData} (fig. \ref{fig:motion_data}). We assume signals inter-dependency based on economical/physical reasons as it is important premise for our approach (see section \ref{sec:tssa_method}). Individual series has a length $ \approx 3 \cdot 10^3 $  and $ \approx 1.5 \cdot 10^3 $ where last $ 20\% $ are deferred test samples for prediction evaluation.
 	
 	\begin{figure}[h]
 		\centering
@@ -326,6 +320,10 @@
 	We should also describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that decomposition (\ref{eq:tSSA_decomp}) is not precise. So this relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameters vector. The used solver for ILS is SCIP~\cite{BolusaniEtal2024ZR}.
 
 	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $ for electricity and $ L = 1000 $ for motion.
+	
+	\subsection{Data availability}
+	
+	Electricity consumption dataset is available at \url{https://sourceforge.net/p/mvr/code/HEAD/tree/data/TurkElectricityConsumption.csv}. Accelerometry data is available at \url{https://data.mendeley.com/datasets/45f952y38r/5}.
 	
 	\subsection{Results and discussion}
 	
@@ -370,7 +368,7 @@
 	
 	Final forecast metrics for all models are in tab. \ref{tab:pred_res_electr} and \ref{tab:pred_res_motion}. In most cases our method showed the best output. Close values were obtained with mSSA. The VAR model appeared unstable for the chosen prediction horizons. RNN was able to learn only the constant function from the data for electricity, but large window size for accelerometry enabled it to make a better prediction.
 	
-	\def\arraystretch{1.1}
+	\def\arraystretch{1.2}
 	\begin{table}[h]
 		\centering
 		\caption{Prediction quality of models for electricity data}\label{tab:pred_res_electr}
@@ -386,7 +384,7 @@
 		\end{tabular}
 	\end{table}
 	
-	\def\arraystretch{1.1}
+	\def\arraystretch{1.2}
 	\begin{table}[h]
 		\centering
 		\caption{Prediction quality of models for motion data}\label{tab:pred_res_motion}
@@ -491,6 +489,6 @@
 	
 		Proposed tensor method is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only a possibility of low-dimensional data representation. When applied to real sets of signals, these assumptions were actually confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is an NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further method improvement.
 		
-		\printbibliography
+		\bibliography{lit}
 	
  \end{document}
