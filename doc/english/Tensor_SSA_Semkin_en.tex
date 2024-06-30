@@ -64,7 +64,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.9\textwidth, keepaspectratio]{../../figs/phase_traj.png}
+		\includegraphics[width=0.9\textwidth, keepaspectratio]{phase_traj.png}
 		\caption{Time series's phase trajectory visualization }\label{pic:phase_traj}
 	\end{figure}
 	
@@ -113,8 +113,8 @@
 	
 	\begin{figure}[h]
 		\centering
-		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{../../figs/Trajectory_Tensor_1}}
-		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{../../figs/Trajectory_Tensor_2}}
+		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{Trajectory_Tensor_1}}
+		\subfigure{\includegraphics[width=0.4\textwidth, keepaspectratio]{Trajectory_Tensor_2}}
 		
 		\caption{Two views on trajectory tensor. The left is in terms of signals' trajectory matrices $ \{x_i(t)\}_{i=1}^m $. The right is in terms of delay matrices.}\label{pic:traj_tensor}
 	\end{figure}
@@ -305,19 +305,19 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Electricity_Production}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/Electricity_Price}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Electricity_Production}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Electricity_Price}
 		\caption{Time series for electricity consumption and its price}\label{fig:electr_data}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/acceleromter_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../figs/gyro_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceleromter_example.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_example.png}
 		\caption{Time series for linear and angular accelerations}\label{fig:motion_data}
 	\end{figure}
 	
-	We should also describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that decomposition (\ref{eq:tSSA_decomp}) is not precise. So this relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameters vector. The used solver for ILS is SCIP~\cite{BolusaniEtal2024ZR}.
+	We should also describe peculiarities of tSSA application. Firstly, tensor rank computation is NP-hard~\cite{HASTAD1990644}, so its number will be explicitly indicated whenever needed. Secondly, the used algorithm for CPD is ALS~\cite{kolda_tensors} and it has an approximation error. Thanks for that decomposition (\ref{eq:tSSA_decomp}) is not precise. So this relative errors will be specified below. Thirdly, ILS problem (\ref{eq:decomp_search_final}) must be solved to find series decomposition. But matrix involved in it has a large row dimension. To boost computation we will cut it to several hundreds which is still much bigger then the size of sought parameters vector.
 
 	Finally, let's fix value $ L $ unified for all models. It is generally responsible for the size of series' history on which methods can be conditioned. For tSSA and mSSA it was described in the beginning of the section \ref{sec:problem_statement}. For RNN it is the length of encoder. For VAR it is the maximum lag number. We pin it to be $ L = 500 $ for electricity and $ L = 1000 $ for motion.
 	
@@ -331,22 +331,22 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MSE_rank.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/MAPE_rank.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{pred_MSE_rank_elec.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{pred_MAPE_rank_elec.png}
 		\caption{$ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ metrics for tSSA forecast depending on CPD rank. Optimal point is marked with red. Electricity data.}\label{fig:mse_mape_electr}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/MSE_rank.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/MAPE_rank.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{pred_MSE_rank_motion.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{pred_MAPE_rank_motion.png}
 		\caption{$ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ metrics for tSSA forecast depending on CPD rank. Optimal point is marked with red. Motion data.}\label{fig:mse_mape_motion}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/CPD_error.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/CPD_error.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{CPD_error_elec.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{CPD_error_motion.png}
 		\caption{Relative CPD approximation errors depending on CPD rank. Left is for electricity, right is for motion.}\label{fig:cpd_errors}
 	\end{figure}
 	
@@ -354,15 +354,15 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/prediction/cpd_rank_30/Price.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Production_program_pred.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Price_pred.png}
 		\caption{tSSA forecast for electricity data. CPD rank $ = 30 $}\label{fig:tssa_electr_pred}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/cpd_rank_20/acceler.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/prediction/cpd_rank_20/gyro.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceler_pred.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_pred.png}
 		\caption{tSSA forecast for motion data. CPD rank $ = 20 $}\label{fig:tssa_motion_pred}
 	\end{figure}
 	
@@ -404,8 +404,8 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/RHE_mean.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/RHE_mean.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{RHE_mean_elec.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{RHE_mean_motion.png}
 		\caption{Relation between $ \overline{\text{RHE}} $ metrics and CPD rank. The left is for electricity data, the right is for motion data. Optimal point is marked with red}\label{fig:decomp_rhe_rank}
 	\end{figure}
 	
@@ -413,22 +413,22 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Production program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/tssa/figs/decomposition/cpd_rank_20/Price.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Production program_decomp.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Price_decomp.png}
 		\caption{tSSA decomposition for electricity data. CPD rank $ = 20 $}\label{fig:electr_decomp_tssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/acceler_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/acceler_2.png}
+		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{acceler_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceler_2.png}
 		\caption{tSSA decomposition for accelerometer data. CPD rank $ = 10 $}\label{fig:accel_decomp_tssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/gyro_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/tssa/figs/decomposition/cpd_rank_15/gyro_2.png}
+		\includegraphics[width=0.48\textwidth, 	keepaspectratio]{gyro_1.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_2.png}
 		\caption{tSSA decomposition for gyroscope data. CPD rank $ = 10 $}\label{fig:gyro_decomp_tssa}
 	\end{figure}
 	
@@ -438,24 +438,24 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Production_program.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/electricity/mssa/figs/decomposition/manual/grouping_1/Price.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Production_program_mssa.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{Price_mssa.png}
 		\caption{mSSA decomposition for electricity data}\label{fig:electr_decomp_mssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_2.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/acceler_3.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceler_1_mssa.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceler_2_mssa.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{acceler_3_mssa.png}
 		\caption{mSSA decomposition for accelerometer data}\label{fig:accel_decomp_mssa}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_1.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_2.png}
-		\includegraphics[width=0.48\textwidth, keepaspectratio]{../../experiments/motion_1/mssa/figs/decomposition/manual/grouping_2/gyro_3.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_1_mssa.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_2_mssa.png}
+		\includegraphics[width=0.48\textwidth, keepaspectratio]{gyro_3_mssa.png}
 		\caption{mSSA decomposition for gyroscope data}\label{fig:gyro_decomp_mssa}
 	\end{figure}
 	
@@ -487,7 +487,9 @@
 	
 	\section{Conclusion}
 	
-		Proposed tensor method is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only a possibility of low-dimensional data representation. When applied to real sets of signals, these assumptions were actually confirmed as well as the neural and statistical models were outperformed by our approach. Nonetheless, a bottleneck was discovered which is an NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further method improvement.
+		Proposed tensor method is devoted to prediction and decomposition of multidimensional time series with substantial interconnection between them. It is easy to use --- there are only two adjustable parameters which does not require heavy learning procedures. Besides, the theory behind is based on the general framework of dynamical systems and demands only a possibility of low-dimensional data representation. When applied to real sets of signals, these assumptions were actually confirmed as well as the neural and statistical models were outperformed by our approach. 
+		
+		Nonetheless, a bottleneck was discovered which is an NP-hardness of optimal series decomposition. Resolving this problem or finding another way to build signal's components are the major ways for further method improvement. Another direction of the future research is an extending of the dynamical systems approach and finding another ways of building shared signals subspace. 
 		
 		\bibliography{lit}
 	
