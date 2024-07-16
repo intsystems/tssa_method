@@ -11,7 +11,7 @@
 \usepackage{multirow}
 
 \theoremstyle{definition}
-\newtheorem*{Def}{Definition}
+\newtheorem{Def}{Definition}
 \theoremstyle{plain}
 \newtheorem{Lem}{Lemma}
 \newtheorem{Th}{Theorem}
@@ -19,7 +19,9 @@
 
 % article-specific symbols
 \newcommand{\delayV}[1]{\overset{\leftarrow}{\mathbf{x}}_{#1}}
-\newcommand{\delayM}[1]{\overset{\leftarrow}{\mathbf{X}}_{#1}}
+\newcommand{\delayM}[1]{\overset{\leftarrow}{X}_{#1}}
+
+\renewcommand{\thesection}{\S \arabic{section}}
 
 \begin{document}
 	
@@ -59,9 +61,9 @@
 	
 	The RNN and VAR methods are able to make the forecast, but, firstly, have a large number of learnable and structural parameters. That means their underlying models have an extensive complexity and their architecture needs to be picked over and tuned. Secondly, the methods' structure does not contain an explicit way of building series decomposition.
 	
-	To rectify the listed disadvantages, we have developed a new method called \emph{tensor SSA} (tSSA). It has only two adjustable parameters. The tSSA extends an SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for the multivariate time series and implies using dynamical systems theory. 
+	To rectify the listed disadvantages, we have developed a new method called the \emph{tensor SSA} (tSSA). It has only two adjustable parameters. The tSSA extends the SSA method~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151} for the multivariate time series and implies using dynamical systems theory. The Takens theorem~~\cite{citeulike:2735031} is theoretical foundation of the tSSA. \emph{Hankel} matrices and their properties are involved in the decomposition problem. It is a matrix with equal elements on each anti-diagonal. Such matrices are tightly connected with Toeplitz and circulant matrices.
 	
-	The main task of the paper is to find a shared \emph{phase subspace}~\cite{1572261550523548160, ignatov2016human} for all given time series. This is a low-dimensional linear subspace where all the system's trajectories can be mapped into isomorphically. Finding it enables us to obtain phase representation of observed signals. Fig.~\ref{pic:phase_traj} illustrates this idea. We use a single time series to build phase space and the specific trajectory of the dynamical system that generated the given series. The forecast then is found upon the fact that the continuation of the trajectory lies in the very same phase space. Partitioning basis vectors of this space into several groups builds us the decomposition of the series. The paper develops named conceptions in the next sections.
+	The main task of the paper is to find the shared \emph{phase subspace}~\cite{1572261550523548160, ignatov2016human} for all given time series. This is a low-dimensional linear subspace where all the system's trajectories can be mapped into isomorphically. Finding it enables us to obtain phase representation of observed signals. Fig.~\ref{pic:phase_traj} illustrates this idea. We use a single time series to build phase space and the specific trajectory of the dynamical system that generated the given series. The forecast then is found upon the fact that the continuation of the trajectory lies in the very same phase space. Partitioning basis vectors of this space into several groups builds the decomposition of the series. The paper develops named conceptions in the next sections.
 	
 	\begin{figure}[h]
 		\centering
@@ -75,10 +77,10 @@
 	
 	\section{Problem statement}\label{sec:problem_statement}
 	
-	Suppose a \emph{dynamical system} with the phase space $ X $, evolution function $ f $ and the initial state $ \mathbf{y}_0 $. Time space is discrete
+	Suppose a \emph{dynamical system} defined on $ X $, with the evolution function $ f $ and the initial state $ \mathbf{y}_0 $. Time space is discrete
 	
 	\begin{gather*}
-		\mathbf{y}(t + 1) = f \bigl( \mathbf{y}(t) \bigr) \ t \in \mathbb{N}, \\
+		\mathbf{y}(t + 1) = f \bigl( \mathbf{y}(t) \bigr), \quad \ t \in \mathbb{N}, \\
 		\mathbf{y}(0) = \mathbf{y}_0 .
 	\end{gather*}
 	
@@ -92,28 +94,28 @@
 		\end{cases}
 	\end{equation*}
 	
-	It is assumed that the trajectories $ \mathbf{y}(t) $ belong to the smaller dimension manifold $ M \subset X $. Now the problem is to find an embedding of the $ M $ into $ \mathbb{R}^{L} $ for some $ L $. The second problem is to build a basis in the image of the embedding. Having done that, the initial dynamical system will be described in terms of the standard linear space. The same will hold to all time series $ x_i(t) $.
+	Assume that the trajectories $ \mathbf{y}(t) $ belong to the smaller dimension manifold $ M \subset X $. Now the problem is to find an embedding of the $ M $ into $ \mathbb{R}^{L} $ for some $ L $. The second problem is to build a basis in the image of the embedding. Having done that, the initial dynamical system will be described in terms of the standard linear space. The same will hold to all time series $ x_i(t) $.
 
-	\subsection{Single-variate series case}\label{sec:one_series}
+	\section{Single-variate series case}\label{sec:one_series}
 	
-	The tesnor SSA relies on the SSA method and the Takens theorem~\cite{citeulike:2735031}. The theorem provides the needed embedding in the single-variate series case. Any point $ \mathbf{y}(t) \in M $ corresponds to the following vector:
+	The tSSA relies on the SSA method and the Takens theorem. The theorem provides the needed embedding in the single-variate series case. Any point $ \mathbf{y}(t) \in M $ corresponds to the following vector:
 	
 	\begin{equation*}
 		\bigl( \, \boldsymbol{\phi} \circ f^{t - L + 1} \bigl( \mathbf{y}(t) \bigr), \ldots , \boldsymbol{\phi} \circ f \bigl( \mathbf{y}(t) \bigr), \boldsymbol{\phi} \circ \mathbf{y}(t) \, \bigr)^{\mathsf{T}} = \bigl( x(t - L + 1), \ldots , x(t-1), x(t) \bigr)^{\mathsf{T}}.
 	\end{equation*}
 	
 	
-	It is called a \emph{delay vector} at time $ t $ and is denoted as $ \delayV{t} $. The vector's dimension $ L $ must satisfy condition $ L > 2 \cdot \dim(M) $. The function $ \phi(\cdot) $ must satisfy several regularity conditions. They are omitted here and considered fulfilled.
+	It is called the \emph{delay vector} at time $ t $ and is denoted as $ \delayV{t} $. The vector's dimension $ L $ must satisfy condition $ L > 2 \cdot \dim(M) $. The function $ \phi(\cdot) $ must satisfy several regularity conditions. They are omitted here and considered fulfilled.
 	
-	Now the time series $ x(t) $ with the length $ N $ gives $ N - L + 1 $ delay vectors. Therefore image of the embedding is $ \text{Lin}(\{\delayV{t}\}) $. It represents the phase space of the series and must be low dimensional. This means $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Finally, the orthonormal basis is an $ U $-component of the Singular value decomposition (SVD) on a \emph{trajectory matrix} $ \mathbf{H}_x $. It is a stacking of the delay vectors
+	Now the time series $ x(t) $ with the length $ N $ gives $ N - L + 1 $ delay vectors. Therefore image of the embedding is $ \text{Lin}(\{\delayV{t}\}) $. It represents the phase space of the series and must be low dimensional. This means $ \text{Lin}(\{\delayV{t}\}) \subset \mathbb{R}^L $. Finally, the orthonormal basis is an $ U $-component of the Singular value decomposition (SVD) on the \emph{trajectory matrix} $ H_x $. It is a stacking of the delay vectors
 	
 	\[
-		\mathbf{H}_x = [ \delayV{1} \ldots  \delayV{N - L + 1}].
+		H_x = [ \delayV{1} \ldots  \delayV{N - L + 1}].
 	\]
 	
-	\subsection{Multivariate series case and the tSSA method}\label{sec:tssa_method}
+	\section{Multivariate series case and the tSSA method}\label{sec:tssa_method}
 	
-	Now there given multivariate time series. Let $ m $ be their number. Hence the $ \boldsymbol{\phi}(\cdot) $ is a multidimensional map. This means that instead of the single delay vector we have $ m $ of them at any time $ t $. Let $ \delayM{t} $ be a matrix $ ( \delayV{1_t} \ldots \delayV{m_t} ) $ called \emph{delay matrix}. Then, the embedding image is a linear span of all $ \delayM{t} $. It is also called the \emph{shared} phase space of the multivariate time series.
+	Now there given multivariate time series. Let $ m $ be their number. Hence, the $ \boldsymbol{\phi}(\cdot) $ is a multidimensional map. This means that instead of the single delay vector we have $ m $ of them at any time $ t $. Let $ \delayM{t} $ be a matrix $ [ \delayV{1_t} \ldots \delayV{m_t} ] $ called the \emph{delay matrix}. Then, the embedding image is a linear span of all $ \delayM{t} $. It is also called the \emph{shared} phase space of the multivariate time series.
 	
 	\begin{figure}[h]
 		\centering
@@ -123,20 +125,30 @@
 		\caption{Two views on trajectory tensor. The left is in terms of signals' trajectory matrices $ \{x_i(t)\}_{i=1}^m $. The right is in terms of delay matrices.}\label{pic:traj_tensor}
 	\end{figure}
 	
-	Similarly to the trajectory matrix we introduce \textit{trajectory tensor} denoted by $ \mathbf{T} $. It is the delay matrices stacked along the second dimension of the tensor, Fig.~\ref{pic:traj_tensor} (left). Equivalent way of constructing the tensor is the following. The $ \mathbf{T} $ is the trajectory matrices $ \mathbf{H}_{x_i} $ stacked along the third dimension, Fig.~\ref{pic:traj_tensor} (right). Therefore the shared phase space of the series is equal to a linear span of all $ \mathbf{H}_{x_i} $. As discussed in the Sec. \ref{sec:one_series}, each trajectory matrix also defines the phase space for the corresponding time series $ x_i(t) $. Finally, we give a 
+	Similarly to the trajectory matrix introduce the \textit{trajectory tensor} denoted by $ \mathbf{T} $. It stacks delay matrices along the second index of the tensor, Fig.~\ref{pic:traj_tensor} (left). From the definition it follows that each tensor slice along the second index is the trajectory matrix. Then, the $ \mathbf{T} $ is also the trajectory matrices $ H_{x_i} $ stacked along the third index, Fig.~\ref{pic:traj_tensor} (right). Therefore, the shared phase space of the series is equal to a linear span of all $ H_{x_i} $. As discussed in the Sec. \ref{sec:one_series}, each trajectory matrix also defines the phase space for the corresponding time series $ x_i(t) $. Finally, we give a 
 	
-	\begin{Def}		
+	\begin{Def}\label{def:interdepend}	
 		The multivariate time series are said to be \emph{interdependent} if they share the common phase space with the same basis.
 	\end{Def}
 	
-	Now assuming observed series interdependence it follows that each $ \mathbf{H}_{x_i} $ has a matrix factorization with the same set of factors. Since the trajectory matrices constructs the trajectory tensor, it has a low-dimensional representation. Using these two corollaries we apply the CP-decomposition to the $ \mathbf{T} $ and obtain $ \mathbf{T} = \sum\limits_{i = 1}^{r} \mathbf{a}_i \otimes \mathbf{b}_i \otimes \mathbf{c}_i $. The CPD is defined by the tensor rank $ r $ and a set of vectors. The vectors are usually composed in full-rank matrices $ A = [\mathbf{a}_1 \ldots \mathbf{a}_r], B = [\mathbf{b}_1 \ldots \mathbf{b}_r], C = [\mathbf{c}_1 \ldots \mathbf{c}_r] $. Denote by $ \boldsymbol{\sigma}_{x_k} $ the $ k $-th row of the $ C $. Finally, with respect to the third-dimension slices of the $ \mathbf{T} $, CPD goes as
+	Assuming the observed series interdependence, it follows that each $ H_{x_i} $ has a matrix factorization with the same set of factors. Since the trajectory matrices constructs the trajectory tensor, it has a low-dimensional representation. Using these two corollaries, we apply the CP-decomposition to the $ \mathbf{T} $ and obtain
+	
+	\begin{equation*}
+		\mathbf{T} = \sum\limits_{i = 1}^{r} \mathbf{a}_i \otimes \mathbf{b}_i \otimes \mathbf{c}_i .
+	\end{equation*}
+	The CPD is defined by the tensor rank $ r $ and a set of vectors. The vectors are usually composed in full-rank matrices 
+	
+	\begin{equation}\label{eq:cpd_matrices}
+		A = [\mathbf{a}_1 \ldots \mathbf{a}_r], B = [\mathbf{b}_1 \ldots \mathbf{b}_r], C = [\mathbf{c}_1 \ldots \mathbf{c}_r] .
+	\end{equation}
+	Denote by $ \boldsymbol{\sigma}_{x_k} $ the $ k $-th row of the $ C $. Finally, with respect to the third-dimension slices of the $ \mathbf{T} $, CPD goes as
 	
 	\begin{equation}\label{eq:tSSA_decomp}
 		\begin{cases}
-			\mathbf{H}_{x_1} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_1}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}},  \\
-			\mathbf{H}_{x_2} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_2}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}, \\
+			H_{x_1} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_1}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}},  \\
+			H_{x_2} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_2}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}, \\
 			\ldots \\
-			\mathbf{H}_{x_m} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_m}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} .
+			H_{x_m} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_m}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} .
 		\end{cases}
 	\end{equation}
 	
@@ -146,72 +158,88 @@
 		Suppose that the given multivariate time series are interdependent. Then
 		
 		\begin{enumerate}
-			\item Any $ \boldsymbol{\sigma}_{x_k} $ is a non-zero vector
-			\item The tensor rank $ r \le L $
-			\item Transposition of the trajectory matrix is a a trajectory matrix. The shared phase space for the transposed matrices is the $ \text{Lin}(\{\mathbf{b}_i\}) $
+			\item Any $ \boldsymbol{\sigma}_{x_k} $ is a non-zero vector.
+			\item The tensor rank $ r \le L $.
+			\item Transposition of the trajectory matrix is a a trajectory matrix. The shared phase space for the transposed matrices is the $ \text{Lin}(\{\mathbf{b}_i\}) $.
 		\end{enumerate}
 	\end{Th}
 	
 	\begin{proof}
 		\begin{enumerate}
-			\item Suppose some vector has a zero element at the position $ j $ and the other is non-zero in this position. Then two trajectory matrices factorize with a different set of factors. That violates the definition of the series interdependence. Another case is that all $ \boldsymbol{\sigma}_{x_k} $ have a zero element at the position $ j $. Then the matrix $ C $ has a zero row and is not full-ranked. It contradicts to the CPD definition.
-			\item As shown in the Sec. \ref{sec:one_series} each time series has its phase space dimension $ \le L $. All delay vectors of every series also lie in the shared phase space $ \text{Lin}(\{\mathbf{a}_i\}) $. Therefore its dimensionality can not become greater.
-			\item It is obvious that rows of the trajectory matrices are the delay vectors of size $ N - L + 1 $. Transpose all equalities in the (\ref{eq:tSSA_decomp}). Now it is clear that rows of any $ \mathbf{H}_{x_i} $ belongs to the $ \text{Lin}(\{\mathbf{b}_i\}) $. This is the shared phase space for the new delay vectors.
+			\item Suppose some vector has a zero element at the position $ j $ and the other is non-zero in this position. Then two trajectory matrices factorize with a different set of factors. That violates the definition of the series interdependence. The other case is that all $ \boldsymbol{\sigma}_{x_k} $ have a zero element at the position $ j $. Then the matrix $ C $ has a zero row and is not full-ranked. It contradicts to the CPD definition.
+			\item Since delay vectors are $ L $-dimensional, each time series has its phase space dimension $ \le L $. All delay vectors of every series also lie in the shared phase space $ \text{Lin}(\{\mathbf{a}_i\}) $. Therefore dimensionality of the shared space can not be greater than $ L $.
+			\item Rows of the trajectory matrices are the delay vectors of size $ N - L + 1 $. Transpose all equalities in the (\ref{eq:tSSA_decomp}). Now it is clear that rows of any $ H_{x_i} $ belongs to the $ \text{Lin}(\{\mathbf{b}_i\}) $. This is the shared phase space for the new delay vectors.
 		\end{enumerate}
 	\end{proof}
 
-	\subsection{Time series decomposition}\label{sec:decomposition}
+	\section{Time series decomposition}\label{sec:decomposition}
 	
-	The series are decomposed into additive components using the following conception: \emph{factorization of the trajectory matrix $ \mathbf{H}_{x_k} $ defines the decomposition of the related time series}. This idea comes from the SSA method. Since all $ \mathbf{H}_{x_k} $ have a similar factorization, each time series is decomposed separately.
+	The series are decomposed into additive components using the following conception: \emph{factorization of the trajectory matrix $ H_{x_k} $ defines the decomposition of the related time series}. This idea comes from the SSA method. Since all $ H_{x_k} $ have a similar factorization, each time series is decomposed separately.
 	
 	Trajectory matrices of the series are \emph{hankel} by their definition. That means equal elements along each anti-diagonal of the matrix. It is trivial that any time series of length $ N $ bijectionly corresponds to a hankel matrix of size $ L \times (N - L + 1) $.
 	
-	Now, we describe the decomposition algorithm. First, the factors of the $ \mathbf{H}_{x_k} $ are arbitrary partitioned into $ s $ groups. The $ s $ is also a chosen number. Then all factors within each partition are summed up. As a result we obtain matrices $ C_1, \ldots, C_s $. If they are all hankel then each $ C $ matrix corresponds to the time series component of the $ x_i(t) $. However, it is almost infeasible even with the trivial series~\cite{ecfb9dc578be43ae9ee8fc88b8ff9151}. Therefore every $ C $ matrix is additionally \emph{hankelized}. This operator averages each matrix's anti-diagonals so the matrix becomes hankel. Denote it as $ \text{Hankel}(\cdot) $. Finally, the algorithm can be written as a chain of identical transformations
+	Describe the decomposition algorithm. First, the factors of the $ H_{x_k} $ are arbitrary partitioned into $ s $ groups. The $ s $ is also a chosen number. Then all factors within each partition are summed up. As a result we obtain matrices $ C_1, \ldots, C_s $. If they are all hankel then each $ C $ matrix corresponds to the time series component of the $ x_i(t) $. However, it is almost infeasible even with the trivial series (see the \cite{ecfb9dc578be43ae9ee8fc88b8ff9151}). Therefore every $ C $ matrix is additionally \emph{hankelized}. This operator averages each matrix's anti-diagonals so the matrix becomes hankel. Denote it as $ \text{Hankel}(\cdot) $. Finally, the algorithm can be written as a chain of identical transformations
 	
-	\begin{multline}\label{eq:decomp_method_ideal}
-		\underline{\mathbf{H}_{x_k}} \overset{1}{=} \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{2}{=} \sum\limits_{i \in \mathbb{I}_1} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} + \ldots + \sum\limits_{i \in \mathbb{I}_s} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \overset{3}{=} \\ \overset{3}{=} C_1 + \ldots + C_s \overset{4}{=} \underline{\text{Hankel}(C_1) + \ldots + \text{Hankel}(C_s)}  \Leftrightarrow x_k(t) = c_1(t) + \ldots c_s(t).
-	\end{multline}
-	
-	Here $ \mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} $ are chosen groups of indices. The fourth equality requires proof. But first, consider a hankel operator's property:
+	\begin{gather}
+		H_{x_k} = \\
+		\sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} = \label{eq:decomp_alg_first_step} \\
+		\sum\limits_{i \in \mathbb{I}_1} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} + \ldots + \sum\limits_{i \in \mathbb{I}_s} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} = \\
+		C_1 + \ldots + C_s = \label{eq:hankelization_step} \\
+	    \text{Hankel}(C_1) + \ldots + \text{Hankel}(C_s). \nonumber \\
+	    \text{Final expression corresponds to the } x_k(t) = c_1(t) + \ldots c_s(t). \nonumber
+	\end{gather}
+    
+	Here $ \mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} $ are chosen groups of indices. $ c_1(t), \ldots , c_s(t) $ are the time series extracted from the $ \text{Hankel}(C_1), \ldots , \text{Hankel}(C_s) $ (see the second paragraph of the section). The (\ref{eq:hankelization_step}) step requires a proof. But first, consider a hankel operator's property:
 	
 	\begin{Lem}
 		The $ \text{Hankel}(\cdot) $ is a linear operator.
 	\end{Lem}
 	
 	\begin{proof}		
-		Having matrices $ A $ and $ B $ with the same size, take their elements from any anti-diagonal. Denote them by $ a_1, \ldots, a_n $ and $ b_1, \ldots, b_n $. Then this anti-diagonal in $ \text{Hankel}(A + B) $ is $ \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i $. It exactly results in a sum of $ \text{Hankel}(A) $ and $ \text{Hankel}(B) $ anti-diagonals.
+		Having matrices $ A $ and $ B $ with the same size, take their elements from any anti-diagonal. Denote them by $ a_1, \ldots, a_n $ and $ b_1, \ldots, b_n $. Then this anti-diagonal in $ \text{Hankel}(A + B) $ is
+		\begin{equation*}
+			 \dfrac{1}{n} \sum\limits^n (a_i + b_i) = \dfrac{1}{n} \sum\limits^n a_i + \dfrac{1}{n} \sum\limits^n b_i.
+		\end{equation*}
+		It exactly results in a sum of the $ \text{Hankel}(A) $'s and $ \text{Hankel}(B) $'s anti-diagonals.
 		
-		Secondly, having a scalar $ \alpha $ it is trivial that $ \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i $. Hence we derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
+		Secondly, having the scalar $ \alpha $, it is trivial that 
+		\begin{equation*}
+			 \dfrac{1}{n} \sum\limits^n \alpha \cdot a_i = \alpha \dfrac{1}{n} \sum\limits^n a_i.
+		\end{equation*}
+		Hence, we derive $ \text{Hankel}(\alpha A) = \alpha \text{Hankel}(A) $.
 	\end{proof}
 	
-	Now recall that the $ \mathbf{H}_{x_k} $ is hankel. Combining it with the previous lemma, apply $ \text{Hankel}(\cdot) $ to the $ \mathbf{H}_{x_k} = C_1 + \ldots + C_s $. This proofs the fourth equality at (\ref{eq:decomp_method_ideal}). Therefore, we have shown the correctness of the decomposition algorithm.
+	Now recall that the $ H_{x_k} $ is hankel. Combining it with the previous lemma, apply $ \text{Hankel}(\cdot) $ to the $ H_{x_k} = C_1 + \ldots + C_s $ from the algorithm. This proofs the (\ref{eq:hankelization_step}). Therefore, we have shown the correctness of the decomposition algorithm.
 	
-	\subsection{Optimal decomposition problem}\label{sec:optimal_decomp}
+	\section{Optimal decomposition problem}\label{sec:optimal_decomp}
 	
-	To eliminate ambiguity in the partitioning of the $ \mathbf{H}_{x_k} $ factors, we restrict $ C_j $ matrices to be hankel. Thus, the fourth step of the decomposition algorithm (\ref{eq:decomp_method_ideal}) becomes unnecessary. In addition, such partitioning completely fulfills the decomposition concept. 
+	To eliminate ambiguity in the partitioning of the $ H_{x_k} $ factors, we restrict $ C_j $ matrices to be hankel. Thus, the (\ref{eq:hankelization_step}) step of the decomposition algorithm becomes unnecessary. In addition, such partitioning completely fulfills the decomposition concept. 
 	
-	Now we formulate the decomposition problem as a system of matrix equations. Take the first equality from the (\ref{eq:decomp_method_ideal}) and apply the hankel operator to the both sides. Recall that the $ \mathbf{H}_{x_k} $ is hankel. Also take the very same equality as it is. We obtain
-	
+	Formulate the decomposition problem as a system of matrix equations. Take the (\ref{eq:decomp_alg_first_step}) equality and apply the hankel operator to both sides. Recall that the $ H_{x_k} $ is hankel. Also take the very same equality as it is. We obtain
 	\begin{equation*}
 		\begin{cases*}
-			\mathbf{H}_{x_k} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} \\
-			\mathbf{H}_{x_k} = \sum\limits_{i = 1}^{r} Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}})
+			H_{x_k} = \sum\limits_{i = 1}^{r} \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}, \\
+			H_{x_k} = \sum\limits_{i = 1}^{r} \text{Hankel}(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}).
 		\end{cases*}
 	\end{equation*}
-	
-	Then subtract the second from the first and denote by $ H_i $ a $ \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}}) $. It is called the \emph{hankel residual matrix} of the $ i $-th factor. Therefore we get
+	Then, subtract the second from the first and introduce
+	\begin{equation*}
+		H_i = \boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}} - Hankel(\boldsymbol{\sigma}_{x_k}(i) \cdot \mathbf{a}_i  \mathbf{b}_i^{\mathsf{T}})
+	\end{equation*}
+	It is called the \emph{hankel residual matrix} of the $ i $-th factor. Therefore we get
 	
 	\begin{equation}\label{eq:residuals_equation}
-		H_1 + \ldots + H_r = 0 \text{. Or equally } H_r = - \sum\limits_{j = 1}^{r - 1} H_j.
+		H_1 + \ldots + H_r = 0. \quad \text{Or equally } H_r = - \sum\limits_{j = 1}^{r - 1} H_j.
 	\end{equation}
 	
-	Finally, the condition on the $ C_i $ to be hankel is reformulated as the residual matrices sum up to zero within each partition group. The system of matrix equations is the following
+	Finally, the condition on the $ C_i $ to be hankel is reformulated as the residual matrices sum up to zero within each partition group. The problem is to find the non-intersecting sets $ \mathbb{I}_1, \ldots , \mathbb{I}_s $ such that
 	
-	\begin{equation*}
-		\sum_{k \in \mathbb{I}_i} H_k = 0 \  \forall i \in 1, \ldots, s.
-	\end{equation*}
+	\begin{gather}\label{eq:decomp_opt_init}
+		\sum_{k \in \mathbb{I}_i} H_k = 0, \ i \in 1, \ldots, s \ , \\
+		\mathbb{I}_1 \sqcup \ldots \sqcup \mathbb{I}_s = \{1, \ldots, r\} . \nonumber
+	\end{gather}
 	
-	Without loss of generality, we set $ s $ equals two. If this problem is solved then the resulting groups of the factors can be further partitioned. Hence any number of the time series components can be obtained. Moreover, for any $ \mathbf{H}_{x_k} $ its residual matrices are linearly dependent as follows from the (\ref{eq:residuals_equation}). Thus, the partition group for the $ H_r $ is uniquely defined if all other residuals are already partitioned. This matrix can be discarded. We also assume all $ H_j $ to be non-zero matrices. Otherwise, the zero residual matrix alone and all the rest make the desired partition on two groups. This assumption implies each of the groups to have at least two residual matrices. Finally, for any $ H_j $ matrix introduce an indicator-variable $ \beta_j \in \{0, 1\} $. It shows what group the residual matrix belongs to. Denote by $ \boldsymbol{\beta} $ a vector $ (\beta_1 \ldots \beta_{r-1})^{\text{T}} $. The decomposition problem is to find $ \boldsymbol{\beta} $ such that
+	Without loss of generality, we set $ s $ equals two. Only $ \mathbb{I}_1, \mathbb{I}_2 $ must be found. If the (\ref{eq:decomp_opt_init}) is solved in such setting, then $ \mathbb{I}_1 $ and $ \mathbb{I}_2 $ can be further partitioned separately. Hence, any number of the time series components can be obtained. Moreover, for any $ H_{x_k} $ its residual matrices are linearly dependent as follows from the (\ref{eq:residuals_equation}). Thus, the partition group for the $ H_r $ is uniquely defined if all other residuals are already partitioned. This matrix can be discarded. We also assume all $ H_j $ to be non-zero matrices. Otherwise, the zero residual matrix alone and all the rest make the desired partition on two groups. This assumption implies each of the groups to have at least two residual matrices. Finally, for any $ H_j $ matrix introduce an indicator-variable $ \beta_j \in \{0, 1\} $. It shows what group the residual matrix belongs to. Denote by $ \boldsymbol{\beta} $ a vector $ (\beta_1 \ldots \beta_{r-1})^{\text{T}} $. The decomposition problem is to find $ \boldsymbol{\beta} $ such that
 	
 	\begin{equation}\label{eq:first_optimal_decomp}
 		\begin{cases*}
@@ -222,7 +250,6 @@
 	\end{equation}
 	
 	The \cite{ecfb9dc578be43ae9ee8fc88b8ff9151} shows that even for trivial time series such a problem is infeasible. Now we transform it into a feasible one. First, vectorize each $ H_i $ and stack resulting vectors into the matrix denoted by $ \Lambda $. Then the first equation in the (\ref{eq:first_optimal_decomp}) is equivalent to the $ \Lambda \boldsymbol{\beta} = 0 $. Second, change the problem of solving the system of equations to an optimization problem. Let's find such $ \boldsymbol{\beta} $ that delivers minimum to the norm of the $ \Lambda \boldsymbol{\beta} $. The changed problem is
-	
 	\begin{equation}\label{eq:decomp_search_final}
 		\begin{cases*}
 			\lVert \Lambda \boldsymbol{\beta} \rVert \to \underset{\boldsymbol{\beta}}{\min}, \\
@@ -230,44 +257,38 @@
 			\sum\limits_{i = 1}^{r - 1} \beta_j \ge 2.
 		\end{cases*}
 	\end{equation}
+	Call solution of the (\ref{eq:decomp_search_final}) the \emph{optimal series decomposition}. The problem itself is an Integer Least Squares (ILS) problem, which is proved to be NP-hard~\cite{van1981another}. Therefore, \emph{the optimal series decomposition is an NP-hard problem}.
 	
-	Call solution of the (\ref{eq:decomp_search_final}) the \emph{optimal series decomposition}. The problem itself is an Integer Least Squares (ILS) problem, which is proved to be NP-hard~\cite{van1981another}. The final result of the section is
+	In spite of the complexity, methods and heuristics exist to reduce the ILS to computationally effective problems, see \cite{Grafarend2022}.
 	
-	\begin{Th}
-		The optimal series decomposition is an NP-hard problem.
-	\end{Th}
+	\section{Time series forecasting}\label{sec:tssa_forecast}
 	
-	In spite of the complexity, methods and heuristics exist to reduce the ILS to computationally effective problems~\cite{Grafarend2022}.
-	
-	\subsection{Time series forecasting}\label{sec:tssa_forecast}
-	
-	Using the build shared phase space each time series is forecast individually. We make a one-step forecast to estimate $ x(N + 1) $. Phase trajectory of the series is a sequence of the delay vectors $ \{ \delayV{t} \} $. The whole trajectory belongs to the phase space $ \text{Lin}(\{\mathbf{a}_i\}) $. Continuation of the trajectory is the $ \delayV{N + 1} $. Therefore $ \delayV{N + 1} \in \text{Lin}(\{\mathbf{a}_i\}) $. At the same time $ x(N + 1) $ is the last component of the $ \delayV{N + 1} $. Now, recall the $ A $ matrix introduced in the Sec. \ref{sec:tssa_method}. The system of linear equation to find $ x(N + 1) $ is
+	Using the build shared phase space each time series is forecast individually. We make a one-step forecast to estimate $ x(N + 1) $. Phase trajectory of the series is a sequence of the delay vectors $ \{ \delayV{t} \} $. The whole trajectory belongs to the phase space $ \text{Lin}(\{\mathbf{a}_i\}) $. Continuation of the trajectory is the $ \delayV{N + 1} $. Therefore $ \delayV{N + 1} \in \text{Lin}(\{\mathbf{a}_i\}) $. At the same time $ x(N + 1) $ is the last component of the $ \delayV{N + 1} $. Now, recall the $ A $ matrix from the (\ref{eq:cpd_matrices}). The system of linear equation to find $ x(N + 1) $ is
 	
 	\begin{align}\label{eq:main_pred_for_A}
 		\delayV{N + 1} = A \boldsymbol{\lambda} \text{ or equally } &\begin{cases}
-			\mathbf{x}_{kn} = A_{kn} \boldsymbol{\lambda}  \\
-			x(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} \boldsymbol{\lambda}
+			\mathbf{x}_{\text{kn}} = A_{\text{kn}} \boldsymbol{\lambda}  \\
+			x(N + 1) = \mathbf{a}_{\text{pr}}^{\mathsf{T}} \boldsymbol{\lambda}
 		\end{cases}, \text{ where } \\
-		A &= \left( \dfrac{A_{kn}}{\mathbf{a}_{pr}^{\mathsf{T}}} \right), \nonumber \\
-		\delayV{N + 1} &= (\mathbf{x}_{kn} \  x(N + 1))^{\mathsf{T}}. \nonumber
+		A &= \left( \dfrac{A_{\text{kn}}}{\mathbf{a}_{\text{pr}}^{\mathsf{T}}} \right), \label{eq:A_split} \\
+		\delayV{N + 1} &= (\mathbf{x}_{\text{kn}} \  x(N + 1))^{\mathsf{T}}. \label{eq:del_vec_split}
 	\end{align}
 	
-	The delay vector and the matrix are broken into two blocks associated with the \emph{known} and \emph{predicted} part of the series. The forecast is made using the second equation in the (\ref{eq:main_pred_for_A}). Therefore vector $ \boldsymbol{\lambda} \in \mathbb{R}^r $ is to be found from the first equation in the (\ref{eq:main_pred_for_A}). It is a system of linear equations with the matrix $ A_{kn} $. The matrix has a rank at least $ r - 1 $ since $ A $ matrix is full-ranked. However we assume $ A_{kn} $ to have rank $ r $ too. As experiments show this is not burdensome. In addition, the linear system is overdetermined since $ r \le L $ (see Sec. \ref{sec:tssa_method}). Therefore its solution is given by the least-squares formula $ \boldsymbol{\lambda} = (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn} $. After replacing it in (\ref{eq:main_pred_for_A}) we obtain the forecast formula
+	The delay vector $ \delayV{N + 1} $ and the matrix $ A $ are split into two blocks, see (\ref{eq:A_split}) and (\ref{eq:del_vec_split}). The blocks are associated with the \emph{known} (kn) and \emph{predicted} (pr) part of the series. The forecast comes from the second equation in the~(\ref{eq:main_pred_for_A}). Therefore, the vector $ \boldsymbol{\lambda} \in \mathbb{R}^r $ is to be found from the first equation in the (\ref{eq:main_pred_for_A}). It is a system of linear equations with the matrix $ A_{\text{kn}} $. The matrix has a rank at least $ r - 1 $ since $ A $ matrix is full-ranked. However, we assume $ A_{\text{kn}} $ to have rank $ r $, too. As experiments show this is not burdensome. In addition, the linear system is overdetermined since $ r \le L $ (see Sec. \ref{sec:tssa_method}). Therefore its solution is given by the least-squares formula $ \boldsymbol{\lambda} = (A_{\text{kn}}^T A_{\text{kn}})^{-1} A_{\text{kn}}^T \mathbf{x}_{\text{kn}} $. After replacing it in (\ref{eq:main_pred_for_A}) we obtain the forecast
 	
 	\begin{equation}\label{eq:tssa_pred}
-		\hat{x}(N + 1) = \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T \mathbf{x}_{kn}.
+		\hat{x}(N + 1) = \mathbf{a}_{\text{pr}}^{\mathsf{T}} (A_{\text{kn}}^{\mathsf{T}} A_{\text{kn}})^{-1} A_{\text{kn}}^{\mathsf{T}} \mathbf{x}_{\text{kn}}.
 	\end{equation}
 	
-	Denote by the $ \mathbf{d} $ a vector $ \mathbf{a}_{pr}^{\mathsf{T}} (A_{kn}^T A_{kn})^{-1} A_{kn}^T $. Once computed, it can be reused to make the forecast for any steps further. Now rewrite the (\ref{eq:tssa_pred}) in terms of the $ x(t) $:
+	Denote by $ \mathbf{d} $ the vector $ \mathbf{a}_{\text{pr}}^{\mathsf{T}} (A_{\text{kn}}^{\mathsf{T}} A_{\text{kn}})^{-1} A_{\text{kn}}^{\mathsf{T}} $. Once computed, it is used to make the forecast for further steps. Rewrite the (\ref{eq:tssa_pred}) in terms of $ x(t) $:
 	
 	\begin{equation*}\label{eq:autoregr}
 		x(t) = \sum\limits_{i = 1}^{L - 1} d_i \cdot x(t - i)
 	\end{equation*}
-	
-	This expression reveals the property of the forecast sequence $ \{\hat{x}(N + i)\}_{i=1}^{\infty} $.
+	This expression reveals the property of the forecast sequence $ \{\hat{x}(N + i)\} $.
 	
 	\begin{Th}		
-		The model of the tSSA's forecast is \emph{autoregressive} $ AR(L - 1) $. The coefficients $ d_i $ found in the (\ref{eq:tssa_pred}) completely define behavior of the forecast sequence.
+		The model of the tSSA's forecast is \emph{autoregressive} $ AR(L - 1) $. The coefficients $ d_i $ found in the (\ref{eq:tssa_pred}), completely define behavior of the forecast sequence.
 	\end{Th}
 	
 	\section{Computational experiment}	
@@ -275,29 +296,29 @@
 	In the current section we obtain the decomposition and the forecast of multivariate time series. We also compare the tSSA with the other methods: the mSSA, the VAR, and the RNN. The latter two are only for the forecast. Moreover,to measure quality of the decomposition we introduce special metrics. They are motivated by the corresponding analysis in the Sec. \ref{sec:decomposition}.
 	
 	\begin{Def}
-		The \emph{absolute hankel error} of the matrix M is 
+		The \emph{absolute hankel error} of the matrix $ M $ is 
 		
 		\[
-		\text{AHE} = \lVert M - \text{Hankel}(M) \rVert_F
+		\text{AHE} = \lVert M - \text{Hankel}(M) \rVert_F.
 		\] 
 		
 	\end{Def}	
 	
 	\begin{Def}		
 		
-		The \emph{relative hankel error} of the matrix M is 
+		The \emph{relative hankel error} of the matrix $ M $ is 
 		
 		\[
-		\text{RHE} = \frac{\text{AHE}}{\lVert M \rVert_F} 
+		\text{RHE} = \frac{\text{AHE}}{\lVert M \rVert_F}.
 		\] 		
 		
 	\end{Def}
 	
-	The AHE is proportional to the total variance of the matrix's anti-diagonals. The RHE is AHE's more interpretable modification. In the Sec. \ref{sec:decomposition} matrices $ C_i $ were introduced. They correspond to the time series components. In the Sec. \ref{sec:optimal_decomp} the optimal decomposition was introduced. It is basically minimizing of the AHE for the $ C_i $ matrices. Hence, the AHE and the RHE are computed for the $ C_i $ in the further experiments. Denote by $ \overline{\text{RHE}}_{\text{ts}} $ the mean RHE across all $ C_i $ of the time series \textit{ts}. Denote by $ \overline{\text{RHE}} $ the mean $ \overline{\text{RHE}}_{\text{ts}} $ across all given time series.
+	The AHE is proportional to the total variance of the matrix's anti-diagonals. The RHE is AHE's more interpretable modification. Recall the $ C_i $ matrices from the (\ref{eq:cpd_matrices}). They correspond to the time series components. The~(\ref{eq:decomp_search_final}) is the optimal decomposition problem. It is basically minimizing of the AHE for the $ C_i $ matrices. Hence, the AHE and the RHE are computed for the $ C_i $ in the further experiments. Denote by $ \overline{\text{RHE}}_{\text{ts}} $ the mean RHE across all $ C_i $ of the time series named "ts". Denote by $ \overline{\text{RHE}} $ the mean $ \overline{\text{RHE}}_{\text{ts}} $ across all given time series.
 	
-	To measure forecast quality for the time series \textit{ts} we use standard metrics: the \emph{mean squared error} $ \text{MSE}_{\text{ts}} $ and the \emph{mean absolute percentage error} $ \text{MAPE}_{\text{ts}} $. Denote by $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ their mean across all given time series.
+	To measure forecast quality for the time series named "ts", we use standard metrics: the \emph{mean squared error} $ \text{MSE}_{\text{ts}} $ and the \emph{mean absolute percentage error} $ \text{MAPE}_{\text{ts}} $. Denote by $ \overline{\text{MSE}} $ and $ \overline{\text{MAPE}} $ their mean across all given time series.
 	
-	Two sets of data are involved in the experiment. First, electricity consumption and electricity price time series (Fig. \ref{fig:electr_data}). Second, inertial unit measurements; three time series are from an accelerometer and three from a gyroscope~\cite{accelerometryData} (Fig. \ref{fig:motion_data}). Walking movements are detected here. We assume the series' interdependence (see Sec. \ref{sec:tssa_method}) based on the economical/physical premises. The series have a length of $ \approx 3 \cdot 10^3 $. About $ 20\% $ of them are deferred test samples for the forecast quality evaluation.
+	Two sets of data are involved in the experiment. First, electricity consumption and electricity price time series (Fig. \ref{fig:electr_data}). Second, inertial unit measurements: three time series are from an accelerometer and three from a gyroscope (Fig. \ref{fig:motion_data}). Walking movements are detected here. We assume the series' interdependence (see Def.~\ref{def:interdepend}) based on economical/physical premises. The series have a length of $ \approx 3 \cdot 10^3 $. About $ 20\% $ of them are deferred test samples for the forecast quality evaluation.
 	
 	\begin{figure}[h]
 		\centering
@@ -315,11 +336,11 @@
 	
 	Now we describe some computational features of the tSSA application. First, tensor rank computation is NP-hard~\cite{HASTAD1990644}. Its specific number is explicitly indicated whenever needed. Second, an algorithm for CPD computation is the ALS~\cite{kolda_tensors}. Since it has an approximation error, the (\ref{eq:tSSA_decomp}) is not precise on practice. Therefore, computed forecast and decomposition are not precise too. The approximation errors are specified whenever needed. Third, the ILS problem (\ref{eq:decomp_search_final}) must be solved to find the series decomposition. But the involved matrix $ \Lambda $ has a large row dimension. To shorten computation, only several hundred rows are left. However, it is still much greater then the size of the sought $ \boldsymbol{\beta} $ vector.	Finally the $ L $ value (see Sec. \ref{sec:one_series}) is $ 500 $ for the electricity data and $ 1000 $ for the inertial unit data. This parameter also has a meaning for the other models. For the RNN it is the length of the initial series input to further make the forecast. For the VAR it is a maximal lag number~\cite{3b1355aedd1041f1853e609a410576f3}. 
 	
-	\subsection{Data availability}
+	\section{Data availability}
 	
-	Electricity consumption dataset is available at \url{https://sourceforge.net/p/mvr/code/HEAD/tree/data/TurkElectricityConsumption.csv}. Accelerometry data is available at \url{https://data.mendeley.com/datasets/45f952y38r/5}.
+	Electricity consumption dataset is available at \url{https://sourceforge.net/p/mvr/code/HEAD/tree/data/TurkElectricityConsumption.csv}. Accelerometry data~\cite{accelerometryData} is available at \url{https://data.mendeley.com/datasets/45f952y38r/5}.
 	
-	\subsection{Results and discussion}
+	\section{Results and discussion}
 	
 	We begin with the tSSA's forecast results. First, relationship between the forecast metrics and the trajectory tensor's rank is depicted in the Fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_motion}. We see that the forecast quality decreases with the greater ranks for both metrics. Furthermore, \emph{overtraining effect} is present as the MAPE metric increases after reaching a minimum. Nonetheless, the CPD's approximation error decreases monotonously, see Fig. \ref{fig:cpd_errors}.
 	
