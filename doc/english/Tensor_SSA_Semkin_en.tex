@@ -23,15 +23,15 @@
 
 \begin{document}
 	
-	\title{Tensor decomposition and forecasting for multivariate time series}
+	\title{Tensor decomposition and forecasting for mobile device data}
 	
 	\author*[1]{\fnm{Kirill} \sur{Semkin}}\email{kirill.semkin32@mail.ru}
-	\author*[2]{\fnm{Vadim} \sur{Strijov}}\email{strijov@ccas.ru}
+	\author*[2]{\fnm{Vadim} \sur{Strijov}}\email{strijov@forecsys.ru}
 	
-	\affil*[1]{\orgname{Forecsys$^\text{{\footnotesize \textregistered}}$} \orgaddress{\city{Moscow}} \country{Russia}}
-	\affil*[2]{\orgname{Forecsys$^\text{{\footnotesize \textregistered}}$} \orgaddress{\city{Moscow}} \country{Russia}}
+	\affil*[1]{\orgname{Forecsys LLC} \orgaddress{\city{Moscow}} \country{Russia}}
+	\affil*[2]{\orgname{Forecsys LLC} \orgaddress{\city{Moscow}} \country{Russia}}
 	
-	\keywords{time series, decomposition, forecast, SSA, CPD}
+	\keywords{mobile phone; inertial measurement unit; time series; decomposition; forecasting; singular spectrum analysis; tensor decomposition; canonic polyadic decomposition}
 	
 	\maketitle
 	
@@ -286,9 +286,7 @@
 	
 	\section{Results and discussion}
 	
-	\paragraph{The forecast}
-	
-	The trajectory tensor rank is equal to the forecast model's order, see Th.~\ref{th:forecast}. Since efficient computation of tensor rank is impossible, the rank becomes tSSA's parameter. Fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_motion} show the forecast quality decreases with the greater ranks for the MAPE and MSE. Optimal rank value is 30. Nonetheless, the CPD computation error decreases monotonously with greater ranks, see Fig. \ref{fig:cpd_errors}. This error is an estimation of how close the computed CPD is to the true one (\ref{eq:CPD}). As a result, the small-order forecast model delivers the best quality. 
+	First, analyze the forecast quality. The trajectory tensor rank is equal to the forecast model's order, see Th.~\ref{th:forecast}. Since efficient computation of tensor rank is impossible, the rank becomes tSSA's parameter. Fig. \ref{fig:mse_mape_electr} and \ref{fig:mse_mape_motion} show the forecast quality decreases with the greater ranks for the MAPE and MSE. Optimal rank value is 30. Nonetheless, the CPD computation error decreases monotonously with greater ranks, see Fig. \ref{fig:cpd_errors}. This error is an estimation of how close the computed CPD is to the true one (\ref{eq:CPD}). As a result, the small-order forecast model delivers the best quality. 
 
 	\begin{figure}[h]
 		\centering
@@ -345,9 +343,7 @@
 		\end{tabular}
 	\end{table}
 	
-	\paragraph{The decomposition}
-	
-	Fig. \ref{fig:decomp_rhe_rank} illustrates the RHE reaches a minimum for the tensor rank $ = 20 $. As the rank goes greater, the RHE does not change or even increase. The forecast quality had the same pattern. Therefore, small tensor ranks deliver the best quality for the decomposition and forecast problems. At the same time, the rank is a value of the shared phase space dimension, see Th.~\ref{th:cpd_phase}. The delay vectors define phase trajectory and have dimension equals $ L $. Recall that $ L $ is set to $ 500 $ for the electricity samples and to $ 1000 $ for the inertial unit samples. As a result, tSSA has significantly reduced dimensionality of the sample time series.
+	Now, analyze the decomposition quality. Fig. \ref{fig:decomp_rhe_rank} illustrates the RHE reaches a minimum for the tensor rank $ = 20 $. As the rank goes greater, the RHE does not change or even increase. The forecast quality had the same pattern. Therefore, small tensor ranks deliver the best quality for the decomposition and forecast problems. At the same time, the rank is a value of the shared phase space dimension, see Th.~\ref{th:cpd_phase}. The delay vectors define phase trajectory and have dimension equals $ L $. Recall that $ L $ is set to $ 500 $ for the electricity samples and to $ 1000 $ for the inertial unit samples. As a result, tSSA has significantly reduced dimensionality of the sample time series.
 	
 	\begin{figure}[h]
 		\centering
